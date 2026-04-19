@@ -135,7 +135,11 @@ export function BasketSidebar({ items, onRemove, onUpdateQty, subtotal }: Basket
           </div>
         )}
         <button
-          onClick={() => !isEmpty && router.push('/checkout')}
+          onClick={() => {
+            if (isEmpty) return
+            const t = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tenant') : null
+            router.push(t ? `/checkout?tenant=${t}` : '/checkout')
+          }}
           disabled={isEmpty}
           style={{
             width: '100%',

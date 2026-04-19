@@ -76,17 +76,28 @@ export function useKitchenSocket(tenantId: string) {
   }, [tenantId])
 
   useEffect(() => {
-    // Initial load of active orders
-    fetch('/api/orders?status=active')
-      .then((r) => r.json())
-      .then(({ orders }) => {
-        if (orders) dispatch({ type: 'SET_ORDERS', orders })
-      })
-      .catch(() => {})
+    const t = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tenant') : null
+    const ordersUrl = t ? `/api/orders?tenant=${t}` : '/api/orders'
 
+    const loadOrders = () => {
+      fetch(ordersUrl)
+        .then((r) => r.json())
+        .then(({ orders }) => {
+          if (!orders) return
+          const active = orders.filter((o: Order) => o.status !== 'cancelled')
+          dispatch({ type: 'SET_ORDERS', orders: active })
+        })
+        .catch(() => {})
+    }
+
+    loadOrders()
     connect()
 
+    // Polling fallback (works on Vercel where WS is unavailable)
+    const poll = setInterval(loadOrders, 5000)
+
     return () => {
+      clearInterval(poll)
       clearTimeout(reconnectRef.current)
       wsRef.current?.close()
     }

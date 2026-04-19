@@ -5,6 +5,7 @@ import { getTenantFromRequest } from '@/lib/tenant'
 import { notFound } from 'next/navigation'
 import { formatOrderId, formatPrice } from '@/lib/utils'
 import Link from 'next/link'
+import { OrderTracker } from '@/components/ordering/OrderTracker'
 
 export default async function ConfirmationPage({ params }: { params: { orderId: string } }) {
   const tenant = await getTenantFromRequest()
@@ -24,59 +25,21 @@ export default async function ConfirmationPage({ params }: { params: { orderId: 
 
   return (
     <div style={{ minHeight: '100vh', background: '#0C0C0C', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <div style={{ background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 16, padding: 40, maxWidth: 480, width: '100%' }}>
-        {/* Success icon */}
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div style={{
-            width: 64,
-            height: 64,
-            borderRadius: '50%',
-            background: 'rgba(46,204,113,0.15)',
-            border: '2px solid rgba(46,204,113,0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 16px',
-            fontSize: 28,
-          }}>
-            ✓
-          </div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: '#F0EBE3' }}>Order Confirmed!</div>
-          <div style={{ fontSize: 13, color: '#78726C', marginTop: 4 }}>
+      <div style={{ background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 16, padding: 32, maxWidth: 520, width: '100%' }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          <div style={{ fontSize: 20, fontWeight: 800, color: '#F0EBE3' }}>Thanks for your order</div>
+          <div style={{ fontSize: 12, color: '#78726C', marginTop: 4 }}>
             {formatOrderId(order.id)} · {estimatedMinutes} min estimated
           </div>
         </div>
 
-        {/* Progress steps */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 28 }}>
-          {['Order Received', 'Preparing', order.fulfillmentType === 'delivery' ? 'On its way' : 'Ready to collect'].map((step, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: '50%',
-                  background: i === 0 ? '#D4A017' : '#1a1a1a',
-                  border: `2px solid ${i === 0 ? '#D4A017' : '#252525'}`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 10,
-                  color: i === 0 ? '#0C0C0C' : '#3a3430',
-                  fontWeight: 700,
-                }}>
-                  {i === 0 ? '✓' : i + 1}
-                </div>
-                <span style={{ fontSize: 9, color: i === 0 ? '#D4A017' : '#3a3430', fontWeight: i === 0 ? 700 : 400, whiteSpace: 'nowrap' }}>
-                  {step}
-                </span>
-              </div>
-              {i < 2 && (
-                <div style={{ width: 40, height: 1, background: '#1a1a1a', margin: '0 4px', marginBottom: 20 }} />
-              )}
-            </div>
-          ))}
-        </div>
+        {/* Live tracker */}
+        <OrderTracker
+          orderId={order.id}
+          initialStatus={order.status as 'new' | 'preparing' | 'ready_for_pickup' | 'out_for_delivery' | 'complete' | 'cancelled'}
+          fulfillmentType={(order.fulfillmentType ?? 'collection') as 'collection' | 'delivery'}
+        />
 
         {/* Order items */}
         <div style={{ background: '#111', border: '1px solid #1a1a1a', borderRadius: 10, padding: '16px 20px', marginBottom: 20 }}>
@@ -109,7 +72,7 @@ export default async function ConfirmationPage({ params }: { params: { orderId: 
         </div>
 
         <Link
-          href="/"
+          href={`/?tenant=${tenant.subdomain}`}
           style={{
             display: 'block',
             textAlign: 'center',

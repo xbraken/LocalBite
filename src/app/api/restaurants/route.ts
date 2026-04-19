@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
     .values({
       name: data.name,
       subdomain: data.subdomain,
+      contactEmail: data.ownerEmail,
       planType: data.planType,
       commissionRate: data.commissionRate,
       monthlyFee: data.monthlyFee,

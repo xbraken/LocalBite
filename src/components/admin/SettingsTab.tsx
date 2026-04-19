@@ -1,16 +1,50 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import useSWR from 'swr'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+function tenantParam() {
+  if (typeof window === 'undefined') return null
+  return new URLSearchParams(window.location.search).get('tenant')
+}
+
+function apiPath(base: string) {
+  const t = tenantParam()
+  return t ? `${base}?tenant=${t}` : base
+}
+
 export function SettingsTab() {
+  const { data, mutate } = useSWR<{ restaurant: { name: string; contactEmail: string | null; contactPhone: string | null } }>(apiPath('/api/restaurant'), fetcher)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
 
-  const save = () => {
+  useEffect(() => {
+    if (!data?.restaurant) return
+    setName(data.restaurant.name ?? '')
+    setEmail(data.restaurant.contactEmail ?? '')
+    setPhone(data.restaurant.contactPhone ?? '')
+  }, [data])
+
+  const save = async () => {
+    setSaving(true)
+    await fetch(apiPath('/api/restaurant'), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        contactEmail: email || null,
+        contactPhone: phone || null,
+      }),
+    })
+    await mutate()
+    setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -26,7 +60,7 @@ export function SettingsTab() {
         <Input label="Contact phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+44..." type="tel" />
 
         <Button onClick={save} className="mt-2">
-          {saved ? '✓ Saved!' : 'Save Changes'}
+          {saving ? 'Saving…' : saved ? '✓ Saved!' : 'Save Changes'}
         </Button>
       </div>
     </div>

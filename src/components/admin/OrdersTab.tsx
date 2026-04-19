@@ -8,21 +8,33 @@ import type { Order, OrderStatus } from '@/types/order'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
+function tenantParam() {
+  if (typeof window === 'undefined') return null
+  return new URLSearchParams(window.location.search).get('tenant')
+}
+
+function apiPath(base: string) {
+  const t = tenantParam()
+  return t ? `${base}?tenant=${t}` : base
+}
+
 const STATUS_FILTERS: { label: string; value: string }[] = [
   { label: 'All', value: 'all' },
   { label: 'New', value: 'new' },
   { label: 'Preparing', value: 'preparing' },
+  { label: 'Ready', value: 'ready_for_pickup' },
+  { label: 'Out', value: 'out_for_delivery' },
   { label: 'Complete', value: 'complete' },
 ]
 
 export function AdminOrders() {
   const [filter, setFilter] = useState('all')
-  const { data, mutate } = useSWR<{ orders: Order[] }>('/api/orders', fetcher, { refreshInterval: 15000 })
+  const { data, mutate } = useSWR<{ orders: Order[] }>(apiPath('/api/orders'), fetcher, { refreshInterval: 15000 })
   const orders = data?.orders ?? []
   const filtered = filter === 'all' ? orders : orders.filter((o) => o.status === filter)
 
   const updateStatus = async (orderId: number, status: OrderStatus) => {
-    await fetch(`/api/orders/${orderId}`, {
+    await fetch(apiPath(`/api/orders/${orderId}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
@@ -86,8 +98,13 @@ export function AdminOrders() {
                     </button>
                   )}
                   {order.status === 'preparing' && (
+                    <button onClick={() => updateStatus(order.id, order.fulfillmentType === 'delivery' ? 'out_for_delivery' : 'ready_for_pickup')} style={{ fontSize: 11, padding: '4px 10px', borderRadius: 5, border: `1px solid ${order.fulfillmentType === 'delivery' ? 'rgba(59,130,246,0.4)' : 'rgba(139,92,246,0.4)'}`, background: order.fulfillmentType === 'delivery' ? 'rgba(59,130,246,0.1)' : 'rgba(139,92,246,0.1)', color: order.fulfillmentType === 'delivery' ? '#3B82F6' : '#8B5CF6', cursor: 'pointer', fontFamily: 'inherit' }}>
+                      {order.fulfillmentType === 'delivery' ? 'Dispatch' : 'Ready'}
+                    </button>
+                  )}
+                  {(order.status === 'ready_for_pickup' || order.status === 'out_for_delivery') && (
                     <button onClick={() => updateStatus(order.id, 'complete')} style={{ fontSize: 11, padding: '4px 10px', borderRadius: 5, border: '1px solid rgba(46,204,113,0.4)', background: 'rgba(46,204,113,0.1)', color: '#2ECC71', cursor: 'pointer', fontFamily: 'inherit' }}>
-                      Complete
+                      {order.fulfillmentType === 'delivery' ? 'Delivered' : 'Collected'}
                     </button>
                   )}
                 </td>

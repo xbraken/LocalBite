@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import useSWR from 'swr'
 import { Toggle } from '@/components/ui/Toggle'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 
 interface Deal {
   id: number
+  restaurantId: number
   code: string
   discountType: 'percent' | 'fixed'
   discountValue: number
@@ -15,34 +17,68 @@ interface Deal {
   isActive: boolean
 }
 
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+function tenantParam() {
+  if (typeof window === 'undefined') return null
+  return new URLSearchParams(window.location.search).get('tenant')
+}
+
+function apiPath(base: string) {
+  const t = tenantParam()
+  return t ? `${base}?tenant=${t}` : base
+}
+
 export function DealsTab() {
-  const [deals, setDeals] = useState<Deal[]>([
-    { id: 1, code: 'WELCOME10', discountType: 'percent', discountValue: 10, minOrder: 0, expiresAt: null, isActive: true },
-    { id: 2, code: 'SAVE5', discountType: 'fixed', discountValue: 5, minOrder: 20, expiresAt: null, isActive: false },
-  ])
+  const { data, mutate } = useSWR<{ deals: Deal[] }>(apiPath('/api/deals'), fetcher)
+  const deals = data?.deals ?? []
   const [showForm, setShowForm] = useState(false)
   const [code, setCode] = useState('')
   const [discountType, setDiscountType] = useState<'percent' | 'fixed'>('percent')
   const [discountValue, setDiscountValue] = useState('')
   const [minOrder, setMinOrder] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
-  const toggleDeal = (id: number) => {
-    setDeals((prev) => prev.map((d) => d.id === id ? { ...d, isActive: !d.isActive } : d))
+  const toggleDeal = async (deal: Deal) => {
+    await fetch(apiPath(`/api/deals/${deal.id}`), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isActive: !deal.isActive }),
+    })
+    mutate()
   }
 
-  const addDeal = () => {
+  const addDeal = async () => {
     if (!code || !discountValue) return
-    const newDeal: Deal = {
-      id: Date.now(),
-      code: code.toUpperCase(),
-      discountType,
-      discountValue: parseFloat(discountValue),
-      minOrder: parseFloat(minOrder) || 0,
-      expiresAt: null,
-      isActive: true,
+    setSaving(true)
+    setError('')
+    try {
+      const res = await fetch(apiPath('/api/deals'), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code.toUpperCase(),
+          discountType,
+          discountValue: parseFloat(discountValue),
+          minOrder: parseFloat(minOrder) || 0,
+          expiresAt: null,
+        }),
+      })
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}))
+        throw new Error(e.error ?? 'Failed to create deal')
+      }
+      setCode('')
+      setDiscountValue('')
+      setMinOrder('')
+      setShowForm(false)
+      mutate()
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setSaving(false)
     }
-    setDeals((prev) => [...prev, newDeal])
-    setCode(''); setDiscountValue(''); setMinOrder(''); setShowForm(false)
   }
 
   return (
@@ -51,6 +87,10 @@ export function DealsTab() {
         <h2 style={{ fontSize: 18, fontWeight: 800, color: '#F0EBE3' }}>Deals & Discounts</h2>
         <Button size="sm" onClick={() => setShowForm(true)}>+ New Deal</Button>
       </div>
+
+      {error && (
+        <div style={{ marginBottom: 12, fontSize: 12, color: '#C0392B', padding: '9px 12px', background: 'rgba(192,57,43,0.1)', borderRadius: 7 }}>{error}</div>
+      )}
 
       {showForm && (
         <div style={{ background: '#0f0f0f', border: '1px solid #1a1a1a', borderRadius: 10, padding: 20, marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -72,7 +112,7 @@ export function DealsTab() {
             <Input label="Min Order (£)" value={minOrder} onChange={(e) => setMinOrder(e.target.value)} placeholder="0" type="number" />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <Button size="sm" onClick={addDeal}>Create Deal</Button>
+            <Button size="sm" onClick={addDeal}>{saving ? 'Creating…' : 'Create Deal'}</Button>
             <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
           </div>
         </div>
@@ -97,9 +137,14 @@ export function DealsTab() {
                 {deal.minOrder > 0 && ` · min £${deal.minOrder.toFixed(2)}`}
               </span>
             </div>
-            <Toggle on={deal.isActive} onChange={() => toggleDeal(deal.id)} />
+            <Toggle on={deal.isActive} onChange={() => toggleDeal(deal)} />
           </div>
         ))}
+        {deals.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '36px', color: '#3a3430', fontSize: 12, border: '1px dashed #1a1a1a', borderRadius: 10 }}>
+            No deals yet. Create one above and it will be available at checkout.
+          </div>
+        )}
       </div>
     </div>
   )

@@ -6,6 +6,9 @@ export const restaurants = sqliteTable('restaurants', {
   name: text('name').notNull(),
   subdomain: text('subdomain').notNull().unique(),
   logo: text('logo'),
+  contactEmail: text('contact_email'),
+  contactPhone: text('contact_phone'),
+  openingHours: text('opening_hours'), // JSON: [{ day, open, close, on }]
   brandColours: text('brand_colours'), // JSON: { primary, accent }
   commissionRate: real('commission_rate').notNull().default(8.5), // percent e.g. 8.5
   monthlyFee: real('monthly_fee').notNull().default(49.0),
@@ -67,7 +70,7 @@ export const orders = sqliteTable('orders', {
   subtotal: real('subtotal').notNull(),
   discountAmount: real('discount_amount').notNull().default(0),
   total: real('total').notNull(),
-  status: text('status').notNull().default('new'), // new|preparing|complete|cancelled
+  status: text('status').notNull().default('new'), // new|preparing|ready_for_pickup|out_for_delivery|complete|cancelled
   paymentMethod: text('payment_method').notNull().default('card'), // card|cash
   stripePaymentIntentId: text('stripe_payment_intent_id'),
   notes: text('notes'),

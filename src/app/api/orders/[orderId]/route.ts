@@ -7,7 +7,7 @@ import { broadcast } from '@/lib/socket'
 import { z } from 'zod'
 
 const patchSchema = z.object({
-  status: z.enum(['new', 'preparing', 'complete', 'cancelled']),
+  status: z.enum(['new', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'complete', 'cancelled']),
 })
 
 export async function PATCH(

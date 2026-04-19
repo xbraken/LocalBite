@@ -20,45 +20,42 @@ export default function KitchenPage() {
     return () => clearInterval(clockId)
   }, [])
 
+  const tenantParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tenant') : null
+  const apiPath = (base: string) => tenantParam ? `${base}${base.includes('?') ? '&' : '?'}tenant=${tenantParam}` : base
+
   useEffect(() => {
-    // Initial load of active orders
-    fetch('/api/orders')
-      .then((r) => r.json())
-      .then(({ orders: rows }) => {
-        if (rows) setOrders(rows.filter((o: Order) => o.status !== 'cancelled'))
-      })
-      .catch(() => {})
+    const ordersUrl = apiPath('/api/orders')
 
-    // WebSocket
-    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const ws = new WebSocket(`${proto}//${window.location.host}/api/ws?tenantId=kitchen`)
-    let reconnectDelay = 1000
-    let reconnectTimer: ReturnType<typeof setTimeout>
+    const loadOrders = () => {
+      fetch(ordersUrl)
+        .then((r) => r.json())
+        .then(({ orders: rows }) => {
+          if (!rows) return
+          const todayStart = new Date()
+          todayStart.setHours(0, 0, 0, 0)
+          const filtered = rows.filter((o: Order) => {
+            if (o.status === 'cancelled') return false
+            // Keep completed orders only if completed today (so the owner can review the day's throughput)
+            if (o.status === 'complete') {
+              const ts = new Date(String(o.createdAt).replace(' ', 'T') + 'Z')
+              return ts >= todayStart
+            }
+            return true
+          })
+          setOrders(filtered)
+        })
+        .catch(() => {})
+    }
 
-    ws.onopen = () => setConnected(true)
-    ws.onclose = () => {
-      setConnected(false)
-      reconnectTimer = setTimeout(() => {
-        reconnectDelay = Math.min(reconnectDelay * 2, 30000)
-      }, reconnectDelay)
-    }
-    ws.onmessage = (e) => {
-      try {
-        const { event, data } = JSON.parse(e.data)
-        if (event === 'order:new') {
-          setOrders((prev) => [data, ...prev])
-        }
-        if (event === 'order:updated') {
-          setOrders((prev) =>
-            prev.map((o) => (o.id === data.orderId ? { ...o, status: data.status } : o))
-          )
-        }
-      } catch {}
-    }
+    loadOrders()
+
+    // Polling — works on Vercel (no WebSocket needed)
+    const poll = setInterval(loadOrders, 4000)
+    setConnected(true)
 
     return () => {
-      clearTimeout(reconnectTimer)
-      ws.close()
+      clearInterval(poll)
+      setConnected(false)
     }
   }, [])
 
@@ -66,30 +63,61 @@ export default function KitchenPage() {
     // Optimistic update
     setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: status as Order['status'] } : o)))
 
-    await fetch(`/api/orders/${orderId}`, {
+    await fetch(apiPath(`/api/orders/${orderId}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     }).catch(() => {
-      // Revert on error by re-fetching
-      fetch('/api/orders').then((r) => r.json()).then(({ orders: rows }) => {
+      fetch(apiPath('/api/orders')).then((r) => r.json()).then(({ orders: rows }) => {
         if (rows) setOrders(rows)
       })
     })
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0C0C0C', overflow: 'hidden' }}>
+    <>
+      <style>{`
+        .kitchen-page {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          background: #0C0C0C;
+          overflow: hidden;
+        }
+
+        .kitchen-page-header {
+          background: #080808;
+          border-bottom: 1px solid #1a1a1a;
+          padding: 12px 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          flex-shrink: 0;
+        }
+
+        .kitchen-page-status {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        @media (max-width: 640px) {
+          .kitchen-page-header {
+            padding: 12px 14px;
+            flex-wrap: wrap;
+          }
+
+          .kitchen-page-status {
+            width: 100%;
+            justify-content: space-between;
+          }
+        }
+      `}</style>
+
+      <div className="kitchen-page">
       {/* Kitchen header */}
-      <div style={{
-        background: '#080808',
-        borderBottom: '1px solid #1a1a1a',
-        padding: '12px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexShrink: 0,
-      }}>
+      <div className="kitchen-page-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
             width: 28,
@@ -104,7 +132,7 @@ export default function KitchenPage() {
           <span style={{ fontSize: 14, fontWeight: 700, color: '#F0EBE3' }}>Kitchen Display</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div className="kitchen-page-status">
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 7, height: 7, borderRadius: '50%', background: connected ? '#2ECC71' : '#C0392B' }} />
             <span style={{ fontSize: 11, color: connected ? '#2ECC71' : '#C0392B', fontWeight: 600 }}>
@@ -119,6 +147,7 @@ export default function KitchenPage() {
       <div style={{ flex: 1, overflow: 'hidden' }}>
         <KanbanBoard orders={orders} onUpdateStatus={handleUpdateStatus} />
       </div>
-    </div>
+      </div>
+    </>
   )
 }

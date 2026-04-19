@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
+import useSWR from 'swr'
 import { Toggle } from '@/components/ui/Toggle'
 
 const DEFAULT_HOURS = [
@@ -13,8 +14,33 @@ const DEFAULT_HOURS = [
   { day: 'Sunday', open: '12:00', close: '21:30', on: true },
 ]
 
+type HoursRow = typeof DEFAULT_HOURS[number]
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+function tenantParam() {
+  if (typeof window === 'undefined') return null
+  return new URLSearchParams(window.location.search).get('tenant')
+}
+
+function apiPath(base: string) {
+  const t = tenantParam()
+  return t ? `${base}?tenant=${t}` : base
+}
+
 export function OpeningHoursTab() {
-  const [hours, setHours] = useState(DEFAULT_HOURS)
+  const { data, mutate } = useSWR<{ restaurant: { openingHours: HoursRow[] | null } }>(apiPath('/api/restaurant'), fetcher)
+  const [hours, setHours] = useState<HoursRow[]>(DEFAULT_HOURS)
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const sourceHours = data?.restaurant?.openingHours
+
+  useEffect(() => {
+    if (sourceHours && sourceHours.length > 0) {
+      setHours(sourceHours)
+    }
+  }, [sourceHours])
 
   const update = (index: number, field: string, value: string | boolean) => {
     setHours((prev) => prev.map((h, i) => i === index ? { ...h, [field]: value } : h))
@@ -30,7 +56,20 @@ export function OpeningHoursTab() {
     outline: 'none',
     fontFamily: 'inherit',
     width: 80,
-  } as React.CSSProperties
+  } as CSSProperties
+
+  const saveHours = async () => {
+    setSaving(true)
+    await fetch(apiPath('/api/restaurant'), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ openingHours: hours }),
+    })
+    await mutate()
+    setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
 
   return (
     <div>
@@ -63,9 +102,10 @@ export function OpeningHoursTab() {
         ))}
       </div>
       <button
+        onClick={saveHours}
         style={{ marginTop: 16, padding: '10px 20px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #D4A017, #C0392B)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
       >
-        Save Hours
+        {saving ? 'Saving…' : saved ? '✓ Saved!' : 'Save Hours'}
       </button>
     </div>
   )

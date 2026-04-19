@@ -7,8 +7,18 @@ import type { Order } from '@/types/order'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
+function tenantParam() {
+  if (typeof window === 'undefined') return null
+  return new URLSearchParams(window.location.search).get('tenant')
+}
+
+function apiPath(base: string) {
+  const t = tenantParam()
+  return t ? `${base}?tenant=${t}` : base
+}
+
 export function AdminOverview() {
-  const { data } = useSWR<{ orders: Order[] }>('/api/orders', fetcher, { refreshInterval: 30000 })
+  const { data } = useSWR<{ orders: Order[] }>(apiPath('/api/orders'), fetcher, { refreshInterval: 30000 })
   const orders = data?.orders ?? []
 
   const today = new Date().toDateString()
@@ -20,7 +30,7 @@ export function AdminOverview() {
     { label: 'Orders Today', value: todayOrders.length, color: '#D4A017' },
     { label: 'Revenue Today', value: formatPrice(todayRevenue), color: '#2ECC71' },
     { label: 'Avg Order Value', value: formatPrice(avgOrder), color: '#3B82F6' },
-    { label: 'Active Now', value: orders.filter((o) => o.status === 'new' || o.status === 'preparing').length, color: '#C0392B' },
+    { label: 'Active Now', value: orders.filter((o) => o.status !== 'complete' && o.status !== 'cancelled').length, color: '#C0392B' },
   ]
 
   return (

@@ -1,4 +1,4 @@
-export type OrderStatus = 'new' | 'preparing' | 'complete' | 'cancelled'
+export type OrderStatus = 'new' | 'preparing' | 'ready_for_pickup' | 'out_for_delivery' | 'complete' | 'cancelled'
 export type PaymentMethod = 'card' | 'cash'
 export type FulfillmentType = 'collection' | 'delivery'
 

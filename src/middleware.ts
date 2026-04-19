@@ -26,13 +26,14 @@ export function middleware(req: NextRequest) {
   const tenantParam = req.nextUrl.searchParams.get('tenant')
   const tenant = tenantParam ?? subdomain
 
-  const res = NextResponse.next()
-
+  const requestHeaders = new Headers(req.headers)
   if (tenant) {
-    res.headers.set('x-tenant-subdomain', tenant)
+    requestHeaders.set('x-tenant-subdomain', tenant)
   }
 
-  return res
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  })
 }
 
 export const config = {

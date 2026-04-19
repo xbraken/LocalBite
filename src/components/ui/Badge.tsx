@@ -3,6 +3,8 @@ import type { OrderStatus } from '@/types/order'
 const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; bg: string }> = {
   new: { label: 'New', color: '#C0392B', bg: 'rgba(192,57,43,0.15)' },
   preparing: { label: 'Preparing', color: '#D4A017', bg: 'rgba(212,160,23,0.12)' },
+  ready_for_pickup: { label: 'Ready for Pickup', color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)' },
+  out_for_delivery: { label: 'Out for Delivery', color: '#3B82F6', bg: 'rgba(59,130,246,0.12)' },
   complete: { label: 'Complete', color: '#2ECC71', bg: 'rgba(46,204,113,0.1)' },
   cancelled: { label: 'Cancelled', color: '#78726C', bg: 'rgba(120,114,108,0.12)' },
 }

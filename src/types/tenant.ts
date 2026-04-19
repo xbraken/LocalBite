@@ -8,6 +8,9 @@ export interface Restaurant {
   name: string
   subdomain: string
   logo: string | null
+  contactEmail: string | null
+  contactPhone: string | null
+  openingHours: Array<{ day: string; open: string; close: string; on: boolean }> | null
   brandColours: BrandColours | null
   commissionRate: number
   monthlyFee: number
