@@ -5,6 +5,7 @@ import { useMenu } from '@/hooks/useMenu'
 import { getCategoryStyle } from '@/lib/categoryStyles'
 import { formatPrice, formatOrderId } from '@/lib/utils'
 import { ItemCustomiserModal } from '@/components/ordering/ItemCustomiserModal'
+import { UKAddressFields } from '@/components/checkout/UKAddressFields'
 import type { MenuItem } from '@/types/menu'
 import type { BasketItem } from '@/types/order'
 
@@ -20,6 +21,7 @@ export default function KioskPage() {
   const [customerName, setCustomerName] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [customerAddress, setCustomerAddress] = useState('')
+  const [addressValid, setAddressValid] = useState(false)
   const [ticket, setTicket] = useState<BasketItem[]>([])
   const [notes, setNotes] = useState<Record<string, string>>({})
   const [focusedId, setFocusedId] = useState<string | null>(null)
@@ -96,18 +98,35 @@ export default function KioskPage() {
 
   const submitOrder = async () => {
     if (ticket.length === 0) return
+    if (fulfillment === 'delivery' && (!customerName || !customerPhone || !addressValid)) return
     setSubmitting(true)
     try {
       const itemsWithNotes = ticket.map((i) => ({ ...i, customisationLabel: [i.customisationLabel, notes[i.basketId]].filter(Boolean).join(' · ') }))
-      const res = await fetch('/api/orders', {
+      const tenantQ = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tenant') : null
+      const url = tenantQ ? `/api/orders?tenant=${tenantQ}` : '/api/orders'
+      const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerName: 'Kiosk', fulfillmentType: fulfillment, items: itemsWithNotes, subtotal: ticketSubtotal, discountAmount: 0, total: ticketTotal, paymentMethod: 'cash' }),
+        body: JSON.stringify({
+          customerName: customerName || 'Kiosk',
+          customerPhone: customerPhone || undefined,
+          customerAddress: fulfillment === 'delivery' ? customerAddress : undefined,
+          fulfillmentType: fulfillment,
+          items: itemsWithNotes,
+          subtotal: ticketSubtotal,
+          discountAmount: 0,
+          total: ticketTotal,
+          paymentMethod: 'cash',
+        }),
       })
       const { orderId } = await res.json()
       setConfirmation({ orderId })
       setTicket([])
       setNotes({})
+      setCustomerName('')
+      setCustomerPhone('')
+      setCustomerAddress('')
+      setAddressValid(false)
       setPaymentModal(false)
     } catch { /* silent */ } finally { setSubmitting(false) }
   }
@@ -145,9 +164,9 @@ export default function KioskPage() {
           </div>
           {/* Fulfillment toggle */}
           <div style={{ display: 'flex', background: '#111', border: '1px solid #1e1e1e', borderRadius: 8, overflow: 'hidden', flexShrink: 0 }}>
-            {(['dine_in', 'collection'] as const).map((f) => (
+            {(['collection', 'delivery'] as const).map((f) => (
               <button key={f} onClick={() => setFulfillment(f)} style={{ padding: '9px 16px', border: 'none', background: fulfillment === f ? '#D4A017' : 'transparent', color: fulfillment === f ? '#0C0C0C' : '#5a5450', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.12s' }}>
-                {f === 'dine_in' ? 'Dine In' : 'Collection'}
+                {f === 'collection' ? 'Collection' : 'Delivery'}
               </button>
             ))}
           </div>
@@ -201,7 +220,7 @@ export default function KioskPage() {
           <div>
             <div style={{ fontSize: 14, fontWeight: 800, color: '#F0EBE3' }}>Order Ticket</div>
             <div style={{ fontSize: 11, color: '#4a4440', marginTop: 2 }}>
-              {fulfillment === 'dine_in' ? 'Dine In' : 'Collection'}{ticketCount > 0 ? ` · ${ticketCount} item${ticketCount !== 1 ? 's' : ''}` : ''}
+              {fulfillment === 'collection' ? 'Collection' : 'Delivery'}{ticketCount > 0 ? ` · ${ticketCount} item${ticketCount !== 1 ? 's' : ''}` : ''}
             </div>
           </div>
           {ticket.length > 0 && (
@@ -261,6 +280,17 @@ export default function KioskPage() {
             })
           )}
         </div>
+
+        {/* Customer details */}
+        {ticket.length > 0 && (
+          <div style={{ padding: '12px 16px', borderTop: '1px solid #1a1a1a', display: 'flex', flexDirection: 'column', gap: 7, flexShrink: 0 }}>
+            <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer name" style={{ background: '#1a1a1a', border: '1px solid #252525', borderRadius: 7, padding: '9px 11px', color: '#F0EBE3', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
+            <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="Phone" style={{ background: '#1a1a1a', border: '1px solid #252525', borderRadius: 7, padding: '9px 11px', color: '#F0EBE3', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
+            {fulfillment === 'delivery' && (
+              <UKAddressFields value={customerAddress} onChange={(formatted, valid) => { setCustomerAddress(formatted); setAddressValid(valid) }} />
+            )}
+          </div>
+        )}
 
         {/* Footer */}
         <div style={{ padding: '14px 16px', borderTop: '1px solid #1a1a1a', flexShrink: 0 }}>

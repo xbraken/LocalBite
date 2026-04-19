@@ -6,6 +6,7 @@ import { Toggle } from '@/components/ui/Toggle'
 import { formatPrice } from '@/lib/utils'
 import { getCategoryStyle } from '@/lib/categoryStyles'
 import { ItemEditorModal } from './ItemEditorModal'
+import { AiMenuImportModal } from './AiMenuImportModal'
 import type { MenuByCategory, MenuItem } from '@/types/menu'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
@@ -23,6 +24,7 @@ export function MenuBuilder() {
   const [activeCategory, setActiveCategory] = useState<string>('All')
   const [editing, setEditing] = useState<MenuItem | null>(null)
   const [creatingNew, setCreatingNew] = useState(false)
+  const [aiImport, setAiImport] = useState(false)
 
   const tenantParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tenant') : null
   const apiPath = (base: string) => tenantParam ? `${base}?tenant=${tenantParam}` : base
@@ -43,23 +45,45 @@ export function MenuBuilder() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <h2 style={{ fontSize: 18, fontWeight: 800, color: '#F0EBE3' }}>Menu Management</h2>
-        <button
-          onClick={() => setCreatingNew(true)}
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: '#fff',
-            background: 'linear-gradient(135deg, #D4A017, #C0392B)',
-            border: 'none',
-            borderRadius: 7,
-            padding: '10px 16px',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-        >
-          + New item
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => setAiImport(true)}
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#D4A017',
+              background: 'rgba(212,160,23,0.08)',
+              border: '1px solid rgba(212,160,23,0.35)',
+              borderRadius: 7,
+              padding: '10px 14px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            ✨ AI import
+          </button>
+          <button
+            onClick={() => setCreatingNew(true)}
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: '#fff',
+              background: 'linear-gradient(135deg, #D4A017, #C0392B)',
+              border: 'none',
+              borderRadius: 7,
+              padding: '10px 16px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            + New item
+          </button>
+        </div>
       </div>
+
+      {aiImport && (
+        <AiMenuImportModal onClose={() => setAiImport(false)} onImported={() => mutate()} />
+      )}
 
       {/* Category tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>

@@ -186,6 +186,13 @@ export function KitchenCard({ order, onUpdateStatus }: KitchenCardProps) {
         ))}
       </div>
 
+      {/* Delivery address */}
+      {order.fulfillmentType === 'delivery' && order.customerAddress && (
+        <div style={{ fontSize: 11, color: '#9FC8F5', background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 7, padding: '7px 10px', lineHeight: 1.4 }}>
+          🛵 {order.customerAddress}
+        </div>
+      )}
+
       {/* Total */}
       <div className="kitchen-card-total">
         Total: <span className="kitchen-card-total-value">{formatPrice(order.total)}</span>

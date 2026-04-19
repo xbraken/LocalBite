@@ -50,24 +50,28 @@ export function DealsTab() {
   }
 
   const addDeal = async () => {
-    if (!code || !discountValue) return
-    setSaving(true)
     setError('')
+    if (!code.trim()) { setError('Deal code is required'); return }
+    const dv = parseFloat(discountValue)
+    if (!discountValue || isNaN(dv) || dv <= 0) { setError('Discount value must be greater than 0'); return }
+    if (discountType === 'percent' && dv > 100) { setError('Percent discount cannot exceed 100'); return }
+    setSaving(true)
     try {
       const res = await fetch(apiPath('/api/deals'), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: code.toUpperCase(),
+          code: code.toUpperCase().trim(),
           discountType,
-          discountValue: parseFloat(discountValue),
+          discountValue: dv,
           minOrder: parseFloat(minOrder) || 0,
           expiresAt: null,
         }),
       })
       if (!res.ok) {
         const e = await res.json().catch(() => ({}))
-        throw new Error(e.error ?? 'Failed to create deal')
+        const msg = typeof e.error === 'string' ? e.error : 'Failed to create deal'
+        throw new Error(msg)
       }
       setCode('')
       setDiscountValue('')

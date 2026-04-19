@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AdminOverview } from '@/components/admin/OverviewTab'
 import { AdminOrders } from '@/components/admin/OrdersTab'
 import { MenuBuilder } from '@/components/admin/MenuBuilder'
@@ -19,8 +19,25 @@ const TABS = [
   { id: 'settings', label: 'Settings' },
 ]
 
+const VALID_TABS = TABS.map((t) => t.id)
+
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('overview')
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const t = params.get('tab')
+    if (t && VALID_TABS.includes(t)) setActiveTab(t)
+  }, [])
+
+  const changeTab = (id: string) => {
+    setActiveTab(id)
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    params.set('tab', id)
+    window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`)
+  }
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: '#0C0C0C', overflow: 'hidden' }}>
@@ -43,7 +60,7 @@ export default function AdminPage() {
         {TABS.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => changeTab(tab.id)}
             style={{
               padding: '10px 16px',
               background: activeTab === tab.id ? '#1a1a1a' : 'transparent',

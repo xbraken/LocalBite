@@ -6,6 +6,7 @@ import { useBasket } from '@/hooks/useBasket'
 import { formatPrice } from '@/lib/utils'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { UKAddressFields } from '@/components/checkout/UKAddressFields'
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -15,6 +16,7 @@ export default function CheckoutPage() {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
+  const [addressValid, setAddressValid] = useState(false)
   const [notes, setNotes] = useState('')
   const [fulfillment, setFulfillment] = useState<'collection' | 'delivery'>('collection')
   const [dealCode, setDealCode] = useState('')
@@ -55,6 +57,7 @@ export default function CheckoutPage() {
   const submit = async () => {
     if (!name) { setError('Please enter your name'); return }
     if (items.length === 0) { setError('Your basket is empty'); return }
+    if (fulfillment === 'delivery' && !addressValid) { setError('Please enter a valid delivery address with a UK postcode'); return }
 
     setLoading(true)
     setError('')
@@ -142,7 +145,10 @@ export default function CheckoutPage() {
             <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+44..." type="tel" />
             <Input label="Email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" type="email" />
             {fulfillment === 'delivery' && (
-              <Input label="Delivery address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 High Street..." />
+              <div>
+                <div style={{ fontSize: 12, color: '#78726C', fontWeight: 500, marginBottom: 8 }}>Delivery address</div>
+                <UKAddressFields value={address} onChange={(formatted, valid) => { setAddress(formatted); setAddressValid(valid) }} />
+              </div>
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: 12, color: '#78726C', fontWeight: 500 }}>Notes (optional)</label>
