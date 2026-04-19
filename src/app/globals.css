@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #D4A017;
+  --crimson: #C0392B;
+  --success: #2ECC71;
+  --bg-base: #0C0C0C;
+  --surface1: #0f0f0f;
+  --surface2: #161616;
+  --surface3: #1a1a1a;
+  --border: #252525;
+  --border-subtle: #222222;
+  --text-primary: #F0EBE3;
+  --text-muted: #78726C;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: #0C0C0C;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #333;
+}
+
+input,
+select,
+button,
+textarea {
+  font-family: inherit;
+}
+
+@layer utilities {
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, #D4A017, #C0392B);
+  }
+  .bg-brand-gradient-hover {
+    background: linear-gradient(135deg, #e0aa1e, #d44030);
+  }
+  .text-brand-gradient {
+    background: linear-gradient(135deg, #D4A017, #C0392B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .border-brand-gradient {
+    border-image: linear-gradient(135deg, #D4A017, #C0392B) 1;
+  }
+}

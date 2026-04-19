@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TakeawayOS — Platform UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<template id="__bundler_thumbnail" data-bg-color="#0C0C0C">
+<svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D4A017"/><stop offset="100%" stop-color="#C0392B"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="#0C0C0C"/>
+  <rect width="1200" height="44" fill="#080808"/>
+  <rect x="14" y="11" width="22" height="22" rx="5" fill="url(#g)"/>
+  <text x="46" y="28" font-family="sans-serif" font-size="12" font-weight="700" fill="#F0EBE3">TakeawayOS</text>
+  <rect x="160" y="41" width="120" height="3" fill="#D4A017"/>
+  <text x="172" y="27" font-family="sans-serif" font-size="11" fill="#D4A017">Customer Ordering</text>
+  <rect y="44" width="175" height="756" fill="#0f0f0f"/>
+  <rect y="100" width="175" height="36" fill="#1a1a1a"/>
+  <rect y="100" width="3" height="36" fill="#D4A017"/>
+  <text x="16" y="123" font-family="sans-serif" font-size="12" fill="#D4A017">Starters</text>
+  <text x="16" y="159" font-family="sans-serif" font-size="12" fill="#3a3430">Mains</text>
+  <text x="16" y="195" font-family="sans-serif" font-size="12" fill="#3a3430">Rice &amp; Noodles</text>
+  <text x="16" y="231" font-family="sans-serif" font-size="12" fill="#3a3430">Drinks</text>
+  <rect x="190" y="66" width="178" height="145" rx="9" fill="#161616" stroke="#222" stroke-width="1"/>
+  <rect x="190" y="66" width="178" height="85" fill="#1e1e1e" rx="9"/>
+  <rect x="370" y="66" width="178" height="145" rx="9" fill="#161616" stroke="#222" stroke-width="1"/>
+  <rect x="370" y="66" width="178" height="85" fill="#1e1e1e" rx="9"/>
+  <rect x="550" y="66" width="178" height="145" rx="9" fill="#161616" stroke="#222" stroke-width="1"/>
+  <rect x="550" y="66" width="178" height="85" fill="#1e1e1e" rx="9"/>
+  <rect x="730" y="66" width="178" height="145" rx="9" fill="#161616" stroke="#222" stroke-width="1"/>
+  <rect x="730" y="66" width="178" height="85" fill="#1e1e1e" rx="9"/>
+  <text x="340" y="132" font-family="sans-serif" font-size="11" font-weight="700" fill="#D4A017">£5.50</text>
+  <text x="520" y="132" font-family="sans-serif" font-size="11" font-weight="700" fill="#D4A017">£6.50</text>
+  <rect x="950" y="44" width="250" height="756" fill="#0f0f0f"/>
+  <text x="968" y="78" font-family="sans-serif" font-size="13" font-weight="700" fill="#F0EBE3">Your Order</text>
+  <rect x="968" y="290" width="213" height="44" rx="8" fill="url(#g)"/>
+  <text x="1025" y="318" font-family="sans-serif" font-size="13" font-weight="700" fill="#fff">Checkout</text>
+</svg>
+</template>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0C0C0C}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:#F0EBE3;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:3px}
+input,select,button,textarea{font-family:inherit}
+#tweaks-panel{display:none;position:fixed;bottom:24px;right:24px;width:230px;background:#161616;border:1px solid #2a2a2a;border-radius:12px;padding:16px;z-index:9999;box-shadow:0 16px 48px rgba(0,0,0,.6)}
+#tweaks-panel.visible{display:block}
+#tweaks-panel h4{font-size:13px;font-weight:700;color:#F0EBE3;margin-bottom:14px}
+.tw-row{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.tw-row label{font-size:11px;color:#78726C;font-weight:500}
+.tw-row select{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;color:#F0EBE3;font-size:12px;padding:7px 10px;outline:none;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="tweaks-panel">
+  <h4>Tweaks</h4>
+  <div class="tw-row"><label>Accent Colour</label>
+    <select id="tw-accent" onchange="applyTweaks()">
+      <option value="gold">Gold + Crimson (default)</option>
+      <option value="teal">Teal + Violet</option>
+      <option value="blue">Blue + Amber</option>
+    </select></div>
+  <div class="tw-row"><label>Surface Tone</label>
+    <select id="tw-surf" onchange="applyTweaks()">
+      <option value="dark">Dark (default)</option>
+      <option value="warm">Warm dark</option>
+      <option value="ultra">Ultra dark</option>
+    </select></div>
+  <div class="tw-row"><label>Border Radius</label>
+    <select id="tw-rad" onchange="applyTweaks()">
+      <option value="8">Rounded (default)</option>
+      <option value="4">Sharp</option>
+      <option value="14">Extra rounded</option>
+    </select></div>
+</div>
+<script>
+window.addEventListener('message',e=>{
+  if(e.data?.type==='__activate_edit_mode')document.getElementById('tweaks-panel').classList.add('visible');
+  if(e.data?.type==='__deactivate_edit_mode')document.getElementById('tweaks-panel').classList.remove('visible');
+});
+window.parent.postMessage({type:'__edit_mode_available'},'*');
+function applyTweaks(){
+  const aMap={gold:{p:'#D4A017',s:'#C0392B'},teal:{p:'#0EA5A0',s:'#7C3AED'},blue:{p:'#3B82F6',s:'#F97316'}};
+  const sMap={dark:{bg:'#0C0C0C'},warm:{bg:'#100E0C'},ultra:{bg:'#060606'}};
+  const a=aMap[document.getElementById('tw-accent').value];
+  const s=sMap[document.getElementById('tw-surf').value];
+  document.body.style.background=s.bg;
+}
+</script>
+<script type="text/babel">
+// ─── DATA ───────────────────────────────────────────────
+const MENU = {
+  Starters:[
+    {id:'s1',name:'Spring Rolls (4)',desc:'Crispy vegetable rolls with your choice of dipping sauce',price:5.50,
+      modifierGroups:[
+        {id:'sg1',label:'Dipping Sauce',type:'required',min:1,max:1,options:[
+          {id:'o1',label:'Sweet Chilli',price:0},
+          {id:'o2',label:'Soy Sauce',price:0},
+          {id:'o3',label:'Hoisin',price:0},
+        ]},
+      ]},
+    {id:'s2',name:'Prawn Toast',desc:'Sesame-crusted prawn on golden fried bread',price:6.50},
+    {id:'s3',name:'Crispy Seaweed',desc:'Lightly seasoned dried seaweed with pine nuts',price:4.50},
+    {id:'s4',name:'Wonton Soup',desc:'Delicate pork wontons in a rich clear broth',price:6.00,
+      modifierGroups:[
+        {id:'sg2',label:'Portion Size',type:'required',min:1,max:1,options:[
+          {id:'o4',label:'Regular',price:0},
+          {id:'o5',label:'Large',price:2.00},
+        ]},
+        {id:'sg3',label:'Extras',type:'optional',min:0,max:2,options:[
+          {id:'o6',label:'Extra wontons',price:1.50},
+          {id:'o7',label:'Chilli oil',price:0.50},
+          {id:'o8',label:'Spring onion',price:0},
+        ]},
+      ]},
+    {id:'s5',name:'Dim Sum Basket',desc:"Chef's selection — pick your three fillings",price:7.50,
+      modifierGroups:[
+        {id:'sg4',label:'Choose 3 fillings',type:'required',min:3,max:3,options:[
+          {id:'o9',label:'Pork & Prawn',price:0},
+          {id:'o10',label:'Chicken & Mushroom',price:0},
+          {id:'o11',label:'Vegetable',price:0},
+          {id:'o12',label:'Beef & Ginger',price:0},
+          {id:'o13',label:'Prawn & Chive',price:0},
+        ]},
+      ]},
+  ],
+  Mains:[
+    {id:'m1',name:'Sweet & Sour Chicken',desc:'Tender chicken in house tangy-sweet sauce with peppers',price:11.50,
+      modifierGroups:[
+        {id:'mg1',label:'Spice Level',type:'required',min:1,max:1,options:[
+          {id:'o14',label:'Mild',price:0},
+          {id:'o15',label:'Medium',price:0},
+          {id:'o16',label:'Hot',price:0},
+        ]},
+        {id:'mg2',label:'Add a Side',type:'optional',min:0,max:1,options:[
+          {id:'o17',label:'Egg Fried Rice',price:3.00},
+          {id:'o18',label:'Steamed Rice',price:2.50},
+          {id:'o19',label:'Noodles',price:3.00},
+        ]},
+      ]},
+    {id:'m2',name:'Kung Pao Beef',desc:'Wok-tossed beef, peanuts, dried chillies, Sichuan pepper',price:13.50,
+      modifierGroups:[
+        {id:'mg3',label:'Spice Level',type:'required',min:1,max:1,options:[
+          {id:'o20',label:'Medium',price:0},
+          {id:'o21',label:'Hot',price:0},
+          {id:'o22',label:'Extra Hot',price:0},
+        ]},
+        {id:'mg4',label:'Protein Swap',type:'optional',min:0,max:1,options:[
+          {id:'o23',label:'Swap to Chicken',price:-1.00},
+          {id:'o24',label:'Swap to Tofu (V)',price:-2.00},
+        ]},
+      ]},
+    {id:'m3',name:"General Tso's Tofu",desc:'Crispy tofu in spicy-sweet glaze, sesame, spring onion',price:11.00,
+      modifierGroups:[
+        {id:'mg5',label:'Spice Level',type:'required',min:1,max:1,options:[
+          {id:'o25',label:'Mild',price:0},
+          {id:'o26',label:'Medium',price:0},
+          {id:'o27',label:'Hot',price:0},
+        ]},
+      ]},
+    {id:'m4',name:'Black Bean Sea Bass',desc:'Steamed fillet in fermented black bean sauce',price:15.50},
+    {id:'m5',name:'Peking Duck (Half)',desc:'Traditional slow-roasted duck with pancakes & hoisin',price:22.00,
+      modifierGroups:[
+        {id:'mg6',label:'Portion',type:'required',min:1,max:1,options:[
+          {id:'o28',label:'Half duck',price:0},
+          {id:'o29',label:'Whole duck',price:18.00},
+        ]},
+        {id:'mg7',label:'Meal Deal — add sides',type:'optional',min:0,max:2,options:[
+          {id:'o30',label:'Egg Fried Rice',price:3.00},
+          {id:'o31',label:'Duck Bone Soup',price:4.50},
+          {id:'o32',label:'Stir-fried Greens',price:4.00},
+        ]},
+      ]},
+    {id:'m6',name:'Mapo Tofu',desc:'Silken tofu, minced pork, fiery bean paste, Sichuan oil',price:12.00,
+      modifierGroups:[
+        {id:'mg8',label:'Heat Level',type:'required',min:1,max:1,options:[
+          {id:'o33',label:'Mild (less numbing)',price:0},
+          {id:'o34',label:'Traditional',price:0},
+          {id:'o35',label:'Málatàng — very hot',price:0},
+        ]},
+      ]},
+  ],
+  'Rice & Noodles':[
+    {id:'r1',name:'Egg Fried Rice',desc:'Wok-fried jasmine rice with egg and soy',price:4.00,
+      modifierGroups:[
+        {id:'rg1',label:'Size',type:'required',min:1,max:1,options:[
+          {id:'o36',label:'Regular',price:0},
+          {id:'o37',label:'Large',price:1.50},
+        ]},
+      ]},
+    {id:'r2',name:'Singapore Chow Mein',desc:'Thin rice noodles, curry powder, prawn, char siu',price:10.50,
+      modifierGroups:[
+        {id:'rg2',label:'Protein',type:'required',min:1,max:1,options:[
+          {id:'o38',label:'Prawn & Char Siu (classic)',price:0},
+          {id:'o39',label:'Chicken only',price:-0.50},
+          {id:'o40',label:'Tofu (V)',price:-1.00},
+          {id:'o41',label:'Extra prawn',price:2.00},
+        ]},
+      ]},
+    {id:'r3',name:'Beef Ho Fun',desc:'Wide silky rice noodles, wok hei, beansprout',price:11.00},
+    {id:'r4',name:'Yangzhou Fried Rice',desc:'Classic fried rice with prawn, ham, egg and peas',price:9.50},
+  ],
+  Drinks:[
+    {id:'d1',name:'Jasmine Tea (Pot)',desc:'Delicate loose-leaf jasmine in a traditional pot',price:3.50,
+      modifierGroups:[
+        {id:'dg1',label:'Pot Size',type:'required',min:1,max:1,options:[
+          {id:'o42',label:'Small (2 cups)',price:0},
+          {id:'o43',label:'Large (4 cups)',price:1.50},
+        ]},
+      ]},
+    {id:'d2',name:'Tiger Beer',desc:'330ml bottle, crisp Asian lager',price:4.00,
+      modifierGroups:[
+        {id:'dg2',label:'Quantity',type:'required',min:1,max:1,options:[
+          {id:'o44',label:'Single bottle',price:0},
+          {id:'o45',label:'2-pack (save £1.50)',price:6.50},
+          {id:'o46',label:'4-pack (save £4)',price:12.00},
+        ]},
+      ]},
+    {id:'d3',name:'Still Water',desc:'750ml bottle',price:2.00},
+    {id:'d4',name:'Lychee Lemonade',desc:'Fresh lychee, lemon juice, soda, mint',price:3.50},
+  ],
+};
+
+const ORDERS_DATA=[
+  {id:'GP-1042',customer:'James R.',items:4,total:28.50,mode:'Delivery',status:'preparing',time:'18:34'},
+  {id:'GP-1041',customer:'Priya M.',items:3,total:31.00,mode:'Collection',status:'new',time:'18:29'},
+  {id:'GP-1040',customer:'Tom W.',items:5,total:47.50,mode:'Delivery',status:'preparing',time:'18:21'},
+  {id:'GP-1039',customer:'Sara K.',items:3,total:33.00,mode:'Collection',status:'complete',time:'18:17'},
+  {id:'GP-1038',customer:'Liu C.',items:3,total:27.50,mode:'Delivery',status:'complete',time:'18:10'},
+  {id:'GP-1037',customer:'Amy H.',items:3,total:25.00,mode:'Delivery',status:'complete',time:'18:04'},
+];
+
+const KITCHEN_ORDERS=[
+  {id:'GP-1042',customer:'James R.',time:'18:34',status:'new',mode:'Delivery',items:['Spring Rolls (4)','Sweet & Sour Chicken','Egg Fried Rice','Still Water']},
+  {id:'GP-1041',customer:'Priya M.',time:'18:29',status:'new',mode:'Collection',items:['Prawn Toast','Kung Pao Beef','Singapore Chow Mein']},
+  {id:'GP-1040',customer:'Tom W.',time:'18:21',status:'inprogress',mode:'Delivery',items:['Wonton Soup','Peking Duck (Half)','Egg Fried Rice','Tiger Beer']},
+  {id:'GP-1039',customer:'Sara K.',time:'18:17',status:'inprogress',mode:'Collection',items:['Dim Sum Basket','Mapo Tofu','Beef Ho Fun']},
+  {id:'GP-1038',customer:'Liu C.',time:'18:10',status:'done',mode:'Delivery',items:["General Tso's Tofu",'Yangzhou Fried Rice']},
+  {id:'GP-1037',customer:'Amy H.',time:'18:04',status:'done',mode:'Delivery',items:['Black Bean Sea Bass','Jasmine Tea (Pot)']},
+];
+
+const RESTAURANTS=[
+  {id:1,name:'Golden Panda',sub:'goldenpanda',owner:'ming.chen@goldenpanda.co.uk',plan:'Pro',comm:8.5,fee:49,status:'active',orders:1240},
+  {id:2,name:'Pizza Napoli',sub:'pizzanapoli',owner:'marco@pizzanapoli.co.uk',plan:'Starter',comm:12.0,fee:29,status:'active',orders:834},
+  {id:3,name:'Spice Garden',sub:'spicegarden',owner:'priya@spicegarden.co.uk',plan:'Pro',comm:9.0,fee:49,status:'active',orders:2105},
+  {id:4,name:'The Burger Lab',sub:'burgerlab',owner:'dan@theburgerlab.co.uk',plan:'Enterprise',comm:6.0,fee:99,status:'active',orders:4320},
+  {id:5,name:'Sakura Sushi',sub:'sakurasushi',owner:'yuki@sakurasushi.co.uk',plan:'Starter',comm:12.0,fee:29,status:'inactive',orders:210},
+  {id:6,name:'Casa Mexicana',sub:'casamexicana',owner:'elena@casamexicana.co.uk',plan:'Pro',comm:8.5,fee:49,status:'active',orders:678},
+];
+
+// ─── SHARED HELPERS ─────────────────────────────────────
+const gold='#D4A017', red='#C0392B', green='#2ECC71';
+const SB={new:{label:'New',color:red,bg:'rgba(192,57,43,.15)'},preparing:{label:'Preparing',color:gold,bg:'rgba(212,160,23,.12)'},complete:{label:'Complete',color:green,bg:'rgba(46,204,113,.1)'}};
+const KCFG={new:{label:'New Orders',color:red,bg:'rgba(192,57,43,.12)',border:'rgba(192,57,43,.45)'},inprogress:{label:'In Progress',color:gold,bg:'rgba(212,160,23,.1)',border:'rgba(212,160,23,.4)'},done:{label:'Complete',color:green,bg:'rgba(46,204,113,.08)',border:'rgba(46,204,113,.25)'}};
+const PLAN_C={Starter:{color:'#78726C',bg:'rgba(120,114,108,.12)'},Pro:{color:gold,bg:'rgba(212,160,23,.12)'},Enterprise:{color:green,bg:'rgba(46,204,113,.1)'}};
+const ADMIN_NAV=[{id:'overview',label:'Overview'},{id:'orders',label:'Orders'},{id:'menu',label:'Menu Management'},{id:'hours',label:'Opening Hours'},{id:'deals',label:'Deals & Discounts'},{id:'settings',label:'Settings'}];
+const MENU_DATA=[{name:'Sweet & Sour Chicken',cat:'Mains',price:11.50,on:true},{name:'Kung Pao Beef',cat:'Mains',price:13.50,on:true},{name:'Spring Rolls (4)',cat:'Starters',price:5.50,on:true},{name:'Peking Duck (Half)',cat:'Mains',price:22.00,on:false},{name:'Egg Fried Rice',cat:'Rice & Noodles',price:4.00,on:true}];
+const HOURS_DATA=[{day:'Monday',open:'12:00',close:'22:00',on:true},{day:'Tuesday',open:'12:00',close:'22:00',on:true},{day:'Wednesday',open:'12:00',close:'22:30',on:true},{day:'Thursday',open:'12:00',close:'22:30',on:true},{day:'Friday',open:'12:00',close:'23:00',on:true},{day:'Saturday',open:'11:30',close:'23:00',on:true},{day:'Sunday',open:'12:00',close:'21:30',on:true}];
+
+const inp={background:'#1a1a1a',border:'1px solid #252525',borderRadius:7,padding:'10px 12px',color:'#F0EBE3',fontSize:13,outline:'none',width:'100%'};
+const foc=e=>e.target.style.borderColor=gold;
+const blr=e=>e.target.style.borderColor='#252525';
+
+function Toggle({on,onChange}){
+  return <div onClick={()=>onChange(!on)} style={{width:34,height:19,borderRadius:10,background:on?gold:'#252525',cursor:'pointer',position:'relative',transition:'background .2s',flexShrink:0}}>
+    <div style={{width:13,height:13,borderRadius:'50%',background:'#fff',position:'absolute',top:3,left:on?18:3,transition:'left .2s'}}/>
+  </div>;
+}
+
+// ─── ITEM CUSTOMISER MODAL ──────────────────────────────
+// Used by both CustomerOrdering and CashierKiosk
+// Handles required/optional modifier groups before adding to basket
+
+function ItemCustomiserModal({item, cat, onAdd, onClose}) {
+  const cs = CAT_STYLE[cat] || CAT_STYLE['Mains'];
+  const groups = item.modifierGroups || [];
+
+  // selections: { [groupId]: Set of optionIds }
+  const initSelections = () => {
+    const s = {};
+    groups.forEach(g => { s[g.id] = new Set(); });
+    return s;
+  };
+  const [selections, setSelections] = React.useState(initSelections);
+
+  const toggleOption = (group, optId) => {
+    setSelections(prev => {
+      const next = {...prev};
+      const cur = new Set(prev[group.id]);
+      if (group.max === 1) {
+        // radio — replace
+        next[group.id] = new Set([optId]);
+      } else {
+        // checkbox with max enforcement
+        if (cur.has(optId)) {
+          cur.delete(optId);
+        } else if (cur.size < group.max) {
+          cur.add(optId);
+        }
+        next[group.id] = cur;
+      }
+      return next;
+    });
+  };
+
+  // Validate: all required groups have min selections met
+  const valid = groups.every(g => {
+    if (g.type === 'required') return selections[g.id].size >= g.min;
+    return true;
+  });
+
+  // Compute total price
+  const extraCost = groups.reduce((sum, g) => {
+    return sum + g.options
+      .filter(o => selections[g.id]?.has(o.id))
+      .reduce((s, o) => s + o.price, 0);
+  }, 0);
+  const totalPrice = item.price + extraCost;
+
+  // Build summary of selections for basket label
+  const buildSelectionSummary = () => {
+    const parts = [];
+    groups.forEach(g => {
+      const chosen = g.options.filter(o => selections[g.id]?.has(o.id));
+      if (chosen.length > 0) parts.push(chosen.map(o=>o.label).join(', '));
+    });
+    return parts.join(' · ');
+  };
+
+  const handleAdd = () => {
+    const summary = buildSelectionSummary();
+    onAdd({
+      ...item,
+      price: totalPrice,
+      customisationLabel: summary || null,
+      // unique id per configuration so same item with diff options = separate line
+      basketId: item.id + '_' + Date.now(),
+    });
+    onClose();
+  };
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.8)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:300,backdropFilter:'blur(6px)'}}
+      onClick={onClose}>
+      <div onClick={e=>e.stopPropagation()}
+        style={{background:'#111',border:'1px solid #222',borderRadius:16,width:480,maxHeight:'82vh',overflow:'hidden',display:'flex',flexDirection:'column',boxShadow:'0 32px 80px rgba(0,0,0,.7)'}}>
+
+        {/* Header */}
+        <div style={{padding:'20px 24px',borderBottom:'1px solid #1a1a1a',display:'flex',gap:14,alignItems:'flex-start',flexShrink:0}}>
+          <div style={{flex:1}}>
+            <div style={{fontSize:17,fontWeight:800,color:'#F0EBE3',lineHeight:1.2}}>{item.name}</div>
+            <div style={{fontSize:12,color:'#4a4440',marginTop:4,lineHeight:1.5}}>{item.desc}</div>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:4,flexShrink:0}}>
+            <button onClick={onClose} style={{background:'none',border:'none',color:'#4a4440',fontSize:20,cursor:'pointer',lineHeight:1,padding:'0 0 4px'}}>×</button>
+            <span style={{fontSize:15,fontWeight:800,color:cs.accent}}>£{totalPrice.toFixed(2)}</span>
+          </div>
+        </div>
+
+        {/* Modifier groups */}
+        <div style={{overflowY:'auto',flex:1,padding:'8px 0'}}>
+          {groups.map((group, gi) => {
+            const isComplete = group.type === 'required'
+              ? selections[group.id].size >= group.min
+              : true;
+            const chosenCount = selections[group.id].size;
+
+            return (
+              <div key={group.id} style={{borderBottom:'1px solid #161616'}}>
+                {/* Group header */}
+                <div style={{padding:'14px 24px 10px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <div>
+                    <span style={{fontSize:13,fontWeight:700,color:'#F0EBE3'}}>{group.label}</span>
+                    <span style={{marginLeft:8,fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.06em',
+                      color: group.type==='required' ? cs.accent : '#5a5450',
+                      background: group.type==='required' ? `${cs.accent}18` : '#1a1a1a',
+                      border: `1px solid ${group.type==='required' ? cs.accent+'44' : '#252525'}`,
+                      borderRadius:4,padding:'2px 6px',
+                    }}>
+                      {group.type==='required' ? 'Required' : 'Optional'}
+                    </span>
+                  </div>
+                  <div style={{fontSize:11,color: isComplete ? green : '#4a4440'}}>
+                    {group.max === 1
+                      ? (isComplete ? '✓ Selected' : 'Pick 1')
+                      : `${chosenCount}/${group.max} · Pick up to ${group.max}`}
+                  </div>
+                </div>
+
+                {/* Options */}
+                <div style={{padding:'0 24px 14px',display:'flex',flexDirection:'column',gap:6}}>
+                  {group.options.map(opt => {
+                    const isChosen = selections[group.id]?.has(opt.id);
+                    const isDisabled = !isChosen && chosenCount >= group.max;
+                    return (
+                      <button key={opt.id}
+                        onClick={() => !isDisabled && toggleOption(group, opt.id)}
+                        style={{
+                          display:'flex', alignItems:'center', gap:12, padding:'11px 14px',
+                          borderRadius:9, border:`1.5px solid ${isChosen ? cs.accent : '#1e1e1e'}`,
+                          background: isChosen ? `${cs.accent}14` : '#0e0e0e',
+                          cursor: isDisabled ? 'not-allowed' : 'pointer',
+                          opacity: isDisabled ? 0.4 : 1,
+                          transition:'all .12s', textAlign:'left',
+                        }}>
+                        {/* Radio / checkbox indicator */}
+                        <div style={{
+                          width:18, height:18, borderRadius: group.max===1?'50%':'5px',
+                          border:`2px solid ${isChosen ? cs.accent : '#333'}`,
+                          background: isChosen ? cs.accent : 'transparent',
+                          display:'flex', alignItems:'center', justifyContent:'center',
+                          flexShrink:0, transition:'all .12s',
+                        }}>
+                          {isChosen && <div style={{width:6,height:6,borderRadius: group.max===1?'50%':'2px',background:'#0C0C0C'}}/>}
+                        </div>
+                        <span style={{flex:1,fontSize:13,color:isChosen?'#F0EBE3':'#9a9490',fontWeight:isChosen?600:400}}>{opt.label}</span>
+                        {opt.price !== 0 && (
+                          <span style={{fontSize:12,fontWeight:700,color: isChosen?cs.accent:'#5a5450',flexShrink:0}}>
+                            {opt.price > 0 ? `+£${opt.price.toFixed(2)}` : `-£${Math.abs(opt.price).toFixed(2)}`}
+                          </span>
+                        )}
+                        {opt.price === 0 && <span style={{fontSize:11,color:'#3a3430',flexShrink:0}}>included</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Footer CTA */}
+        <div style={{padding:'16px 24px',borderTop:'1px solid #1a1a1a',flexShrink:0,background:'#0d0d0d'}}>
+          {!valid && (
+            <div style={{fontSize:11,color:'#C0392B',marginBottom:10,textAlign:'center'}}>
+              Please complete all required selections above
+            </div>
+          )}
+          <button onClick={handleAdd} disabled={!valid} style={{
+            width:'100%',padding:'14px',borderRadius:10,border:'none',
+            background: valid ? `linear-gradient(135deg,${cs.accent},#C0392B)` : '#1e1e1e',
+            color: valid ? '#fff' : '#3a3430',
+            fontSize:14,fontWeight:800,cursor:valid?'pointer':'not-allowed',
+            transition:'all .2s',letterSpacing:'0.02em',
+          }}>
+            {valid ? `Add to order · £${totalPrice.toFixed(2)}` : 'Complete your selection'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// Per-category visual config: gradient bg, pattern, accent
+const CAT_STYLE = {
+  'Starters':       { grad:'linear-gradient(145deg,#2a1a08 0%,#1a0e04 100%)', accent:'#E8922A', pattern:'M0 0h4v4H0zm8 8h4v4H8z', label:'STARTERS' },
+  'Mains':          { grad:'linear-gradient(145deg,#1f0808 0%,#0e0404 100%)', accent:'#C0392B', pattern:'M0 8h8v1H0zm0-4h4v1H0z',  label:'MAINS' },
+  'Rice & Noodles': { grad:'linear-gradient(145deg,#1e1a02 0%,#0e0e02 100%)', accent:'#D4A017', pattern:'M2 0h1v8H2zM6 0h1v8H6z', label:'RICE & NOODLES' },
+  'Drinks':         { grad:'linear-gradient(145deg,#03121e 0%,#020a12 100%)', accent:'#2EAFC0', pattern:'M0 4a4 4 0 1 0 8 0',      label:'DRINKS' },
+};
+
+// Decorative SVG food-hint per category
+const CAT_SVG = {
+  'Starters': <svg viewBox="0 0 120 120" style={{width:'100%',height:'100%',opacity:.18}}><circle cx="60" cy="60" r="50" fill="none" stroke="#E8922A" strokeWidth="2"/><circle cx="60" cy="60" r="35" fill="none" stroke="#E8922A" strokeWidth="1.5"/><circle cx="60" cy="60" r="18" fill="#E8922A" opacity=".3"/><line x1="10" y1="60" x2="110" y2="60" stroke="#E8922A" strokeWidth="1"/><line x1="60" y1="10" x2="60" y2="110" stroke="#E8922A" strokeWidth="1"/></svg>,
+  'Mains': <svg viewBox="0 0 120 120" style={{width:'100%',height:'100%',opacity:.18}}><ellipse cx="60" cy="65" rx="48" ry="38" fill="none" stroke="#C0392B" strokeWidth="2"/><path d="M30 45 Q60 20 90 45" fill="none" stroke="#C0392B" strokeWidth="2"/><circle cx="60" cy="58" r="16" fill="#C0392B" opacity=".25"/><path d="M44 65 Q60 75 76 65" fill="none" stroke="#C0392B" strokeWidth="1.5"/></svg>,
+  'Rice & Noodles': <svg viewBox="0 0 120 120" style={{width:'100%',height:'100%',opacity:.18}}><path d="M20 40 Q40 30 60 40 Q80 50 100 40" fill="none" stroke="#D4A017" strokeWidth="2"/><path d="M20 55 Q40 45 60 55 Q80 65 100 55" fill="none" stroke="#D4A017" strokeWidth="2"/><path d="M20 70 Q40 60 60 70 Q80 80 100 70" fill="none" stroke="#D4A017" strokeWidth="2"/><path d="M20 85 Q40 75 60 85 Q80 95 100 85" fill="none" stroke="#D4A017" strokeWidth="1.5"/><circle cx="60" cy="60" r="26" fill="none" stroke="#D4A017" strokeWidth="1" strokeDasharray="4 3"/></svg>,
+  'Drinks': <svg viewBox="0 0 120 120" style={{width:'100%',height:'100%',opacity:.18}}><rect x="38" y="25" width="44" height="72" rx="8" fill="none" stroke="#2EAFC0" strokeWidth="2"/><path d="M38 45h44" stroke="#2EAFC0" strokeWidth="1"/><ellipse cx="60" cy="35" rx="22" ry="6" fill="#2EAFC0" opacity=".2"/><circle cx="60" cy="70" r="14" fill="#2EAFC0" opacity=".15"/><path d="M50 60 Q60 72 70 60" fill="none" stroke="#2EAFC0" strokeWidth="1.5"/></svg>,
+};
+
+// Tall image placeholder per category
+function FoodImgPlaceholder({cat, name, size='normal'}) {
+  const cs = CAT_STYLE[cat] || CAT_STYLE['Mains'];
+  const h = size === 'large' ? 220 : 160;
+  return (
+    <div style={{width:'100%',height:h,background:cs.grad,position:'relative',overflow:'hidden',flexShrink:0}}>
+      <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        {CAT_SVG[cat]}
+      </div>
+      <div style={{position:'absolute',bottom:10,right:10,fontSize:9,fontFamily:'monospace',color:cs.accent,opacity:.5,letterSpacing:'0.1em',textTransform:'uppercase'}}>photo</div>
+    </div>
+  );
+}
+
+// Category landing tile
+function CatTile({cat, count, onClick, wide}) {
+  const cs = CAT_STYLE[cat] || CAT_STYLE['Mains'];
+  const [hov, setHov] = React.useState(false);
+  return (
+    <div onClick={onClick}
+      onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+      style={{
+        background: cs.grad, borderRadius:14, overflow:'hidden', cursor:'pointer',
+        position:'relative', gridColumn: wide ? 'span 2' : 'span 1',
+        minHeight: wide ? 240 : 200,
+        transform: hov ? 'scale(1.015)' : 'scale(1)',
+        transition:'transform .2s ease, box-shadow .2s ease',
+        boxShadow: hov ? `0 12px 40px rgba(0,0,0,.6), 0 0 0 1px ${cs.accent}44` : '0 4px 16px rgba(0,0,0,.4)',
+      }}>
+      {/* bg illustration */}
+      <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',transform:'scale(1.2)'}}>
+        {CAT_SVG[cat]}
+      </div>
+      {/* gradient overlay bottom */}
+      <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 55%)'}}/>
+      {/* count badge */}
+      <div style={{position:'absolute',top:14,right:14,fontSize:10,fontWeight:700,color:cs.accent,background:'rgba(0,0,0,.5)',borderRadius:20,padding:'3px 9px',backdropFilter:'blur(4px)',border:`1px solid ${cs.accent}33`}}>
+        {count} items
+      </div>
+      {/* label */}
+      <div style={{position:'absolute',bottom:0,left:0,right:0,padding:'20px 22px'}}>
+        <div style={{fontSize: wide ? 30 : 24, fontWeight:800, color:'#fff', letterSpacing:'0.04em', lineHeight:1, textTransform:'uppercase', textShadow:'0 2px 12px rgba(0,0,0,.8)'}}>{cs.label}</div>
+        <div style={{width:28,height:2,background:cs.accent,borderRadius:1,marginTop:7}}/>
+      </div>
+      {/* hover arrow */}
+      {hov && <div style={{position:'absolute',bottom:22,right:20,fontSize:18,color:cs.accent,fontWeight:700}}>→</div>}
+    </div>
+  );
+}
+
+// Menu item card (image-forward)
+function MenuCard({item, cat, qty, onAdd, onRemove}) {
+  const cs = CAT_STYLE[cat] || CAT_STYLE['Mains'];
+  const [hov, setHov] = React.useState(false);
+  return (
+    <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
+      style={{background:'#111',borderRadius:12,overflow:'hidden',display:'flex',flexDirection:'column',cursor:'default',
+        boxShadow: hov ? '0 8px 32px rgba(0,0,0,.5)' : '0 2px 8px rgba(0,0,0,.3)',
+        transform: hov ? 'translateY(-2px)' : 'none', transition:'all .2s ease',
+        border:`1px solid ${hov ? cs.accent+'44' : '#1e1e1e'}`,
+      }}>
+      <FoodImgPlaceholder cat={cat} name={item.name}/>
+      <div style={{padding:'14px 16px 16px',display:'flex',flexDirection:'column',gap:6,flex:1}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:8}}>
+          <span style={{fontWeight:700,fontSize:13,color:'#F0EBE3',lineHeight:1.25,flex:1}}>{item.name}</span>
+          <span style={{fontWeight:800,fontSize:14,color:cs.accent,whiteSpace:'nowrap',flexShrink:0}}>£{item.price.toFixed(2)}</span>
+        </div>
+        <p style={{fontSize:11,color:'#5a5450',lineHeight:1.55,flex:1,textWrap:'pretty'}}>{item.desc}</p>
+        <div style={{marginTop:4}}>
+          {qty > 0
+            ? <div style={{display:'flex',alignItems:'center',gap:0,background:'#1a1a1a',borderRadius:8,overflow:'hidden',border:`1px solid ${cs.accent}55`,alignSelf:'flex-start',width:'fit-content'}}>
+                <button onClick={onRemove} style={{width:34,height:34,border:'none',background:'transparent',color:'#F0EBE3',fontSize:16,cursor:'pointer',fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center'}}>−</button>
+                <span style={{fontSize:13,fontWeight:800,color:cs.accent,minWidth:24,textAlign:'center'}}>{qty}</span>
+                <button onClick={onAdd} style={{width:34,height:34,border:'none',background:cs.accent,color:'#0C0C0C',fontSize:16,cursor:'pointer',fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
+              </div>
+            : <button onClick={onAdd} style={{padding:'7px 18px',borderRadius:7,border:`1.5px solid ${cs.accent}`,background:'transparent',color:cs.accent,fontSize:12,fontWeight:700,cursor:'pointer',transition:'all .15s',letterSpacing:'0.02em'}}
+                onMouseEnter={e=>{e.currentTarget.style.background=cs.accent;e.currentTarget.style.color='#0C0C0C';}}
+                onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color=cs.accent;}}>
+                Add to order
+              </button>
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CustomerOrdering({basket, addToBasket, removeFromBasket, onCheckout}) {
+  const [cat, setCat] = React.useState(null); // null = category landing
+  const [basketOpen, setBasketOpen] = React.useState(false);
+  const getQty = id => basket.filter(b => b.id === id).length;
+  const total = basket.reduce((s,i) => s + i.price, 0);
+  const groups = basket.reduce((acc,item)=>{acc[item.id]=acc[item.id]||{...item,qty:0};acc[item.id].qty++;return acc},{});
+  const cats = Object.keys(MENU);
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',height:'calc(100vh - 44px)',overflow:'hidden',background:'#0C0C0C'}}>
+
+      {/* ── Restaurant Header ── */}
+      <div style={{background:'#080808',borderBottom:'1px solid #161616',padding:'0 28px',display:'flex',alignItems:'center',gap:14,height:62,flexShrink:0}}>
+        <div style={{width:40,height:40,borderRadius:10,background:'linear-gradient(135deg,#D4A017,#C0392B)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:14,color:'#fff',flexShrink:0,letterSpacing:'0.02em'}}>GP</div>
+        <div>
+          <div style={{fontWeight:800,fontSize:16,color:'#F0EBE3',letterSpacing:'-0.01em'}}>Golden Panda</div>
+          <div style={{fontSize:11,color:'#4a4440',marginTop:1}}>Chinese Restaurant · 20–35 min · Free delivery over £20</div>
+        </div>
+        <div style={{marginLeft:'auto',display:'flex',gap:20,alignItems:'center'}}>
+          <span style={{fontSize:11,color:'#3a3430'}}>Min. order £10.00</span>
+          <div style={{width:1,height:18,background:'#1e1e1e'}}/>
+          <span style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:green,fontWeight:600}}>
+            <span style={{width:7,height:7,borderRadius:'50%',background:green,display:'inline-block',boxShadow:`0 0 6px ${green}`}}/>Open now
+          </span>
+          {/* Basket toggle (mobile-style) */}
+          {basket.length > 0 && <button onClick={()=>setBasketOpen(b=>!b)} style={{display:'flex',alignItems:'center',gap:7,padding:'8px 14px',background:'linear-gradient(135deg,#D4A017,#C0392B)',border:'none',borderRadius:8,color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+            Basket · £{total.toFixed(2)}
+            <span style={{background:'rgba(255,255,255,.25)',borderRadius:20,padding:'1px 6px',fontSize:11}}>{basket.length}</span>
+          </button>}
+        </div>
+      </div>
+
+      {/* ── Category Nav (when inside a category) ── */}
+      {cat && <div style={{background:'#080808',borderBottom:'1px solid #161616',padding:'0 28px',display:'flex',alignItems:'center',gap:0,height:44,flexShrink:0,overflowX:'auto'}}>
+        <button onClick={()=>setCat(null)} style={{display:'flex',alignItems:'center',gap:5,padding:'0 14px 0 0',height:44,background:'transparent',border:'none',color:'#4a4440',fontSize:12,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
+          ← All categories
+        </button>
+        <div style={{width:1,height:20,background:'#1e1e1e',marginRight:4}}/>
+        {cats.map(c => {
+          const cs = CAT_STYLE[c];
+          return <button key={c} onClick={()=>setCat(c)} style={{display:'flex',alignItems:'center',gap:0,padding:'0 16px',height:44,background:'transparent',border:'none',borderBottom:`2px solid ${cat===c?cs.accent:'transparent'}`,color:cat===c?cs.accent:'#4a4440',fontSize:12,fontWeight:cat===c?700:400,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0,transition:'color .15s'}}>
+            {c}
+          </button>;
+        })}
+      </div>}
+
+      <div style={{display:'flex',flex:1,overflow:'hidden',position:'relative'}}>
+        {/* ── Main content ── */}
+        <div style={{flex:1,overflowY:'auto',padding: cat ? '28px 28px' : '32px 28px'}}>
+
+          {/* CATEGORY LANDING */}
+          {!cat && <>
+            <div style={{marginBottom:28}}>
+              <h1 style={{fontSize:26,fontWeight:800,color:'#F0EBE3',letterSpacing:'-0.02em'}}>What are you craving?</h1>
+              <p style={{fontSize:13,color:'#4a4440',marginTop:5}}>Choose a category to browse our full menu</p>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,maxWidth:900}}>
+              {cats.map((c,i) => <CatTile key={c} cat={c} count={MENU[c].length} onClick={()=>setCat(c)} wide={i===0}/>)}
+            </div>
+          </>}
+
+          {/* ITEM GRID */}
+          {cat && <>
+            <div style={{marginBottom:24}}>
+              <h2 style={{fontSize:22,fontWeight:800,color:'#F0EBE3',letterSpacing:'-0.01em'}}>{cat}</h2>
+              <div style={{width:32,height:3,background:CAT_STYLE[cat]?.accent||gold,borderRadius:2,marginTop:8}}/>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:16,paddingBottom:32}}>
+              {MENU[cat].map(item => <MenuCard key={item.id} item={item} cat={cat} qty={getQty(item.id)} onAdd={()=>addToBasket(item)} onRemove={()=>removeFromBasket(item.id)}/>)}
+            </div>
+          </>}
+        </div>
+
+        {/* ── Basket sidebar (always visible on desktop when has items) ── */}
+        <div style={{
+          width: basketOpen || basket.length > 0 ? 300 : 0,
+          background:'#0a0a0a', borderLeft:'1px solid #161616',
+          display:'flex', flexDirection:'column', flexShrink:0,
+          overflow:'hidden', transition:'width .25s ease',
+        }}>
+          {/* Basket header */}
+          <div style={{padding:'18px 18px 14px',borderBottom:'1px solid #161616',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
+            <div>
+              <span style={{fontWeight:800,fontSize:14,color:'#F0EBE3'}}>Your Order</span>
+              {basket.length > 0 && <span style={{marginLeft:8,background:gold,color:'#0C0C0C',borderRadius:20,padding:'2px 7px',fontSize:10,fontWeight:800}}>{basket.length}</span>}
+            </div>
+            <button onClick={()=>setBasketOpen(false)} style={{background:'none',border:'none',color:'#3a3430',fontSize:18,cursor:'pointer',lineHeight:1,padding:'2px 4px'}}>×</button>
+          </div>
+
+          {/* Items */}
+          <div style={{flex:1,overflowY:'auto',padding:'12px 18px'}}>
+            {basket.length === 0
+              ? <div style={{textAlign:'center',paddingTop:48,color:'#2a2a2a'}}>
+                  <div style={{fontSize:36,marginBottom:8,opacity:.4}}>
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="19" stroke="#3a3430" strokeWidth="2"/><path d="M12 14h16l-2 10H14L12 14z" stroke="#3a3430" strokeWidth="1.5" strokeLinejoin="round"/><circle cx="16" cy="27" r="2" fill="#3a3430"/><circle cx="24" cy="27" r="2" fill="#3a3430"/></svg>
+                  </div>
+                  <div style={{fontSize:12,color:'#3a3430'}}>Nothing added yet</div>
+                </div>
+              : Object.values(groups).map(item => {
+                const cs = Object.values(CAT_STYLE).find(()=>true); // fallback
+                return <div key={item.id} style={{display:'flex',alignItems:'center',gap:10,padding:'11px 0',borderBottom:'1px solid #141414'}}>
+                  <div style={{width:38,height:38,borderRadius:7,background:'#161616',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,color:'#2a2a2a',fontFamily:'monospace',flexShrink:0,overflow:'hidden'}}>
+                    <div style={{width:'100%',height:'100%',background:'repeating-linear-gradient(45deg,#161616,#161616 3px,#1a1a1a 3px,#1a1a1a 6px)'}}/>
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:12,fontWeight:600,color:'#E0DCD8',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{item.name}</div>
+                    <div style={{fontSize:11,color:'#4a4440',marginTop:1}}>×{item.qty}</div>
+                  </div>
+                  <span style={{fontSize:13,fontWeight:700,color:'#F0EBE3',flexShrink:0}}>£{(item.price*item.qty).toFixed(2)}</span>
+                </div>;
+              })
+            }
+          </div>
+
+          {/* Totals + CTA */}
+          {basket.length > 0 && <div style={{padding:'14px 18px',borderTop:'1px solid #161616',flexShrink:0}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:6,fontSize:12,color:'#4a4440'}}><span>Subtotal</span><span>£{total.toFixed(2)}</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:14,fontSize:12,color:'#4a4440'}}><span>Delivery</span><span style={{color:green}}>Free</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:16,fontSize:15,fontWeight:800}}>
+              <span style={{color:'#F0EBE3'}}>Total</span>
+              <span style={{color:gold}}>£{total.toFixed(2)}</span>
+            </div>
+            <button onClick={onCheckout} style={{width:'100%',padding:'13px',borderRadius:9,border:'none',background:'linear-gradient(135deg,#D4A017,#C0392B)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',letterSpacing:'0.02em'}}>
+              Go to Checkout →
+            </button>
+          </div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SCREEN 2: CHECKOUT ──────────────────────────────────
+function Checkout({basket,onPlaceOrder,onBack}){
+  const [mode,setMode]=React.useState('delivery');
+  const [addr,setAddr]=React.useState({line1:'',line2:'',city:'',postcode:''});
+  const [loading,setLoading]=React.useState(false);
+  const groups=basket.reduce((acc,item)=>{acc[item.id]=acc[item.id]||{...item,qty:0};acc[item.id].qty++;return acc},{});
+  const subtotal=basket.reduce((s,i)=>s+i.price,0);
+  const delivery=mode==='delivery'&&subtotal<20?2.99:0;
+  const total=subtotal+delivery;
+  function Field({label,value,onChange,placeholder,half}){
+    return <div style={{flex:half?'0 0 calc(50% - 5px)':'1 1 100%',display:'flex',flexDirection:'column',gap:4}}>
+      <label style={{fontSize:11,color:'#4a4440',fontWeight:500}}>{label}</label>
+      <input value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} style={inp} onFocus={foc} onBlur={blr}/>
+    </div>;
+  }
+  const place=()=>{setLoading(true);setTimeout(()=>{setLoading(false);onPlaceOrder({mode,total,items:basket});},1800);};
+  return <div style={{minHeight:'calc(100vh - 44px)',background:'#0C0C0C',display:'flex',justifyContent:'center',padding:'26px 22px'}}>
+    <div style={{display:'flex',gap:20,width:'100%',maxWidth:860}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',gap:16}}>
+        <button onClick={onBack} style={{background:'none',border:'none',color:'#4a4440',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',gap:5,padding:0,alignSelf:'flex-start'}}>← Back to menu</button>
+        <h1 style={{fontSize:19,fontWeight:700,color:'#F0EBE3'}}>Checkout</h1>
+        <div style={{background:'#141414',borderRadius:10,padding:16,border:'1px solid #1e1e1e'}}>
+          <div style={{fontSize:11,fontWeight:600,color:'#4a4440',marginBottom:9,textTransform:'uppercase',letterSpacing:'0.08em'}}>Fulfilment</div>
+          <div style={{display:'flex',gap:8}}>
+            {['delivery','collection'].map(m=><button key={m} onClick={()=>setMode(m)} style={{flex:1,padding:'9px 0',borderRadius:7,border:`1px solid ${mode===m?gold:'#252525'}`,background:mode===m?'rgba(212,160,23,.1)':'transparent',color:mode===m?gold:'#3a3430',fontSize:12,fontWeight:600,cursor:'pointer',textTransform:'capitalize',transition:'all .15s'}}>{m==='delivery'?'Delivery':'Collection'}</button>)}
+          </div>
+        </div>
+        {mode==='delivery'&&<div style={{background:'#141414',borderRadius:10,padding:16,border:'1px solid #1e1e1e'}}>
+          <div style={{fontSize:11,fontWeight:600,color:'#4a4440',marginBottom:11,textTransform:'uppercase',letterSpacing:'0.08em'}}>Delivery Address</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:9}}>
+            <Field label="Address line 1" value={addr.line1} onChange={v=>setAddr(a=>({...a,line1:v}))} placeholder="123 High Street"/>
+            <Field label="Address line 2 (optional)" value={addr.line2} onChange={v=>setAddr(a=>({...a,line2:v}))} placeholder="Flat 4B"/>
+            <Field label="City" value={addr.city} onChange={v=>setAddr(a=>({...a,city:v}))} placeholder="London" half/>
+            <Field label="Postcode" value={addr.postcode} onChange={v=>setAddr(a=>({...a,postcode:v}))} placeholder="E1 6RF" half/>
+          </div>
+        </div>}
+        <div style={{background:'#141414',borderRadius:10,padding:16,border:'1px solid #1e1e1e'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:11}}>
+            <div style={{fontSize:11,fontWeight:600,color:'#4a4440',textTransform:'uppercase',letterSpacing:'0.08em'}}>Payment</div>
+            <div style={{display:'flex',gap:4}}>{['VISA','MC','AMEX'].map(c=><span key={c} style={{fontSize:9,fontWeight:700,color:'#2a2a2a',border:'1px solid #222',borderRadius:3,padding:'2px 4px'}}>{c}</span>)}</div>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',gap:9}}>
+            <div style={{display:'flex',flexDirection:'column',gap:4}}>
+              <label style={{fontSize:11,color:'#4a4440',fontWeight:500}}>Name on card</label>
+              <input placeholder="J. Smith" style={inp} onFocus={foc} onBlur={blr}/>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:4}}>
+              <label style={{fontSize:11,color:'#4a4440',fontWeight:500}}>Card number</label>
+              <div style={{background:'#1a1a1a',border:'1px solid #252525',borderRadius:7,padding:'10px 12px',fontSize:13,color:'#2a2a2a',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <span>•••• •••• •••• ••••</span>
+                <svg width="28" height="17" viewBox="0 0 28 17"><rect width="28" height="17" rx="3" fill="#1C3FAA"/><circle cx="17" cy="8.5" r="5.5" fill="#EB001B"/><circle cx="22" cy="8.5" r="5.5" fill="#F79E1B" opacity="0.85"/></svg>
+              </div>
+            </div>
+            <div style={{display:'flex',gap:9}}>
+              <div style={{flex:1,display:'flex',flexDirection:'column',gap:4}}>
+                <label style={{fontSize:11,color:'#4a4440',fontWeight:500}}>Expiry</label>
+                <input placeholder="MM / YY" style={inp} onFocus={foc} onBlur={blr}/>
+              </div>
+              <div style={{flex:1,display:'flex',flexDirection:'column',gap:4}}>
+                <label style={{fontSize:11,color:'#4a4440',fontWeight:500}}>CVC</label>
+                <input placeholder="•••" style={inp} onFocus={foc} onBlur={blr}/>
+              </div>
+            </div>
+            <p style={{fontSize:11,color:'#2e2e2e'}}>Payments secured by Stripe. We never store card details.</p>
+          </div>
+        </div>
+        <button onClick={place} disabled={loading} style={{padding:'13px',borderRadius:9,border:'none',background:loading?'#1e1e1e':'linear-gradient(135deg,#D4A017,#C0392B)',color:loading?'#3a3430':'#fff',fontSize:13,fontWeight:700,cursor:loading?'not-allowed':'pointer',transition:'all .3s'}}>
+          {loading?'Processing payment…':`Place Order · £${total.toFixed(2)}`}
+        </button>
+      </div>
+      <div style={{width:260,flexShrink:0}}>
+        <div style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:11,overflow:'hidden',position:'sticky',top:0}}>
+          <div style={{padding:'13px 16px',borderBottom:'1px solid #1e1e1e'}}>
+            <div style={{fontWeight:700,fontSize:13,color:'#F0EBE3'}}>Order Summary</div>
+            <div style={{fontSize:11,color:'#333',marginTop:2}}>Golden Panda</div>
+          </div>
+          <div style={{padding:'11px 16px',maxHeight:280,overflowY:'auto'}}>
+            {Object.values(groups).map(item=><div key={item.id} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #1a1a1a',fontSize:12}}>
+              <span style={{color:'#7a7470'}}>{item.qty}× {item.name}</span>
+              <span style={{color:'#F0EBE3',fontWeight:600}}>£{(item.price*item.qty).toFixed(2)}</span>
+            </div>)}
+          </div>
+          <div style={{padding:'11px 16px 14px',borderTop:'1px solid #1e1e1e',display:'flex',flexDirection:'column',gap:6}}>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'#4a4440'}}><span>Subtotal</span><span>£{subtotal.toFixed(2)}</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'#4a4440'}}><span>Delivery</span><span style={{color:delivery===0?green:'#F0EBE3'}}>{delivery===0?'Free':`£${delivery.toFixed(2)}`}</span></div>
+            <div style={{height:1,background:'#1e1e1e',margin:'2px 0'}}/>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:14,fontWeight:700}}><span style={{color:'#F0EBE3'}}>Total</span><span style={{color:gold}}>£{total.toFixed(2)}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+// ─── SCREEN 3: CONFIRMATION ──────────────────────────────
+function OrderConfirmation({order,onNewOrder}){
+  const orderNum=React.useMemo(()=>'GP-'+Math.floor(1000+Math.random()*9000),[]);
+  const estTime=order?.mode==='collection'?'15–20 min':'30–45 min';
+  const steps=['Order received','Preparing your food',order?.mode==='collection'?'Ready to collect':'Out for delivery'];
+  return <div style={{minHeight:'calc(100vh - 44px)',background:'#0C0C0C',display:'flex',justifyContent:'center',padding:'34px 22px'}}>
+    <div style={{width:'100%',maxWidth:500}}>
+      <div style={{textAlign:'center',marginBottom:26}}>
+        <div style={{width:66,height:66,borderRadius:'50%',background:'rgba(212,160,23,.12)',border:`2px solid ${gold}`,margin:'0 auto 13px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,color:gold}}>✓</div>
+        <h1 style={{fontSize:22,fontWeight:800,color:'#F0EBE3',marginBottom:5}}>Order Confirmed!</h1>
+        <p style={{fontSize:13,color:'#4a4440'}}>Thank you! Golden Panda has received your order.</p>
+        <div style={{marginTop:10,display:'inline-flex',alignItems:'center',gap:8,background:'#141414',border:'1px solid #222',borderRadius:8,padding:'7px 13px'}}>
+          <span style={{fontSize:11,color:'#4a4440'}}>Order</span>
+          <span style={{fontSize:13,fontWeight:700,color:gold,letterSpacing:'0.05em'}}>{orderNum}</span>
+        </div>
+      </div>
+      <div style={{background:'linear-gradient(135deg,rgba(212,160,23,.07),rgba(192,57,43,.05))',border:'1px solid rgba(212,160,23,.25)',borderRadius:11,padding:'16px 20px',marginBottom:16,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div>
+          <div style={{fontSize:11,color:'#4a4440',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:4}}>{order?.mode==='collection'?'Ready in approx.':'Est. delivery'}</div>
+          <div style={{fontSize:24,fontWeight:800,color:gold}}>{estTime}</div>
+        </div>
+        <div style={{textAlign:'right'}}>
+          <div style={{fontSize:11,color:'#4a4440',marginBottom:3}}>Fulfilment</div>
+          <div style={{fontSize:13,fontWeight:600,color:'#F0EBE3',textTransform:'capitalize'}}>{order?.mode||'Delivery'}</div>
+        </div>
+      </div>
+      <div style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:11,padding:'16px 20px',marginBottom:16}}>
+        <div style={{fontSize:11,fontWeight:600,color:'#4a4440',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:12}}>Order Progress</div>
+        {steps.map((step,i)=><div key={i} style={{display:'flex',gap:11,alignItems:'flex-start'}}>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
+            <div style={{width:24,height:24,borderRadius:'50%',flexShrink:0,background:i<=1?(i===1?gold:'rgba(212,160,23,.25)'):'#1e1e1e',border:`2px solid ${i<=1?gold:'#222'}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:i<=1?(i===1?'#0C0C0C':gold):'#2a2a2a'}}>
+              {i<1?'✓':i+1}
+            </div>
+            {i<steps.length-1&&<div style={{width:2,height:24,background:i<1?'rgba(212,160,23,.3)':'#1e1e1e',margin:'2px 0'}}/>}
+          </div>
+          <div style={{paddingTop:2,paddingBottom:i<steps.length-1?24:0}}>
+            <div style={{fontSize:13,fontWeight:i===1?600:400,color:i<=1?'#F0EBE3':'#2a2a2a'}}>{step}</div>
+            {i===1&&<div style={{fontSize:11,color:gold,marginTop:2}}>In progress…</div>}
+          </div>
+        </div>)}
+      </div>
+      <div style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:11,overflow:'hidden',marginBottom:16}}>
+        <div style={{padding:'12px 18px',borderBottom:'1px solid #1e1e1e',display:'flex',justifyContent:'space-between'}}>
+          <span style={{fontSize:13,fontWeight:600,color:'#F0EBE3'}}>Receipt</span>
+          <span style={{fontSize:11,color:'#2a2a2a'}}>Golden Panda · {new Date().toLocaleDateString('en-GB')}</span>
+        </div>
+        <div style={{padding:'11px 18px'}}>
+          {(order?.items||[]).slice(0,6).map((item,i)=><div key={i} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #1a1a1a',fontSize:12}}>
+            <span style={{color:'#6a6460'}}>1× {item.name}</span>
+            <span style={{color:'#F0EBE3'}}>£{item.price.toFixed(2)}</span>
+          </div>)}
+        </div>
+        <div style={{padding:'10px 18px 13px',borderTop:'1px solid #1e1e1e',display:'flex',justifyContent:'space-between'}}>
+          <span style={{fontSize:13,fontWeight:700,color:'#F0EBE3'}}>Total paid</span>
+          <span style={{fontSize:13,fontWeight:700,color:gold}}>£{(order?.total||0).toFixed(2)}</span>
+        </div>
+      </div>
+      <button onClick={onNewOrder} style={{width:'100%',padding:'11px',borderRadius:9,border:'1px solid #222',background:'transparent',color:'#4a4440',fontSize:13,fontWeight:600,cursor:'pointer'}}>Start a new order</button>
+    </div>
+  </div>;
+}
+
+// ─── SCREEN 4: KITCHEN DISPLAY ───────────────────────────
+function elapsed(t){const[h,m]=t.split(':').map(Number);const now=new Date();const diff=(now.getHours()*60+now.getMinutes())-(h*60+m);if(diff<=0)return'Just now';if(diff<60)return`${diff}m ago`;return`${Math.floor(diff/60)}h ${diff%60}m ago`;}
+
+function KitchenCard({order,onAdvance,onComplete}){
+  const cfg=KCFG[order.status];
+  return <div style={{background:cfg.bg,border:`1.5px solid ${cfg.border}`,borderRadius:10,padding:'13px 15px',display:'flex',flexDirection:'column',gap:9,opacity:order.status==='done'?.45:1,transition:'opacity .3s'}}>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+      <div>
+        <div style={{fontSize:18,fontWeight:800,color:cfg.color,letterSpacing:'0.04em'}}>{order.id}</div>
+        <div style={{fontSize:12,color:'#8a8480',marginTop:1}}>{order.customer}</div>
+      </div>
+      <div style={{textAlign:'right'}}>
+        <div style={{fontSize:11,color:'#3a3430'}}>{order.time}</div>
+        <div style={{fontSize:10,color:'#2a2a2a',marginTop:1}}>{elapsed(order.time)}</div>
+      </div>
+    </div>
+    <span style={{fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em',color:'#4a4440',background:'#1a1a1a',border:'1px solid #222',borderRadius:3,padding:'2px 6px',alignSelf:'flex-start'}}>{order.mode}</span>
+    <div style={{display:'flex',flexDirection:'column',gap:3}}>
+      {order.items.map((item,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:6}}>
+        <div style={{width:4,height:4,borderRadius:'50%',background:cfg.color,flexShrink:0}}/>
+        <span style={{fontSize:12,color:order.status==='done'?'#3a3430':'#C0BCB8',fontWeight:500}}>{item}</span>
+      </div>)}
+    </div>
+    {order.status!=='done'?<button onClick={()=>order.status==='new'?onAdvance(order.id):onComplete(order.id)} style={{marginTop:2,padding:'8px',borderRadius:7,border:'none',background:order.status==='new'?red:gold,color:order.status==='new'?'#fff':'#0C0C0C',fontSize:12,fontWeight:700,cursor:'pointer'}}>
+      {order.status==='new'?'Start Preparing':'Mark Complete'}
+    </button>:<div style={{padding:'7px',borderRadius:7,background:'rgba(46,204,113,.1)',textAlign:'center',fontSize:12,fontWeight:600,color:green}}>✓ Done</div>}
+  </div>;
+}
+
+function KitchenScreen(){
+  const [orders,setOrders]=React.useState(KITCHEN_ORDERS);
+  const [clock,setClock]=React.useState(new Date());
+  React.useEffect(()=>{const t=setInterval(()=>setClock(new Date()),1000);return()=>clearInterval(t);},[]);
+  const advance=id=>setOrders(os=>os.map(o=>o.id===id?{...o,status:'inprogress'}:o));
+  const complete=id=>setOrders(os=>os.map(o=>o.id===id?{...o,status:'done'}:o));
+  return <div style={{height:'calc(100vh - 44px)',background:'#070707',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+    <div style={{background:'#0d0d0d',borderBottom:'1px solid #1a1a1a',padding:'0 20px',display:'flex',alignItems:'center',height:48,flexShrink:0}}>
+      <div style={{display:'flex',alignItems:'center',gap:7}}>
+        <div style={{width:8,height:8,borderRadius:'50%',background:green,boxShadow:`0 0 8px ${green}`}}/>
+        <span style={{fontSize:12,fontWeight:700,color:'#F0EBE3',textTransform:'uppercase',letterSpacing:'0.06em'}}>Kitchen Display</span>
+        <span style={{fontSize:11,color:'#2a2a2a'}}>— Golden Panda</span>
+      </div>
+      <div style={{marginLeft:'auto',display:'flex',gap:18,alignItems:'center'}}>
+        <span style={{fontSize:12,color:'#3a3430'}}>Active: <span style={{color:gold,fontWeight:700}}>{orders.filter(o=>o.status!=='done').length}</span></span>
+        <span style={{fontSize:13,fontWeight:700,color:'#4a4440',fontVariantNumeric:'tabular-nums',letterSpacing:'0.05em'}}>{clock.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>
+      </div>
+    </div>
+    <div style={{flex:1,display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:1,overflow:'hidden'}}>
+      {['new','inprogress','done'].map(key=>{
+        const cfg=KCFG[key];
+        const colOrders=orders.filter(o=>o.status===key);
+        return <div key={key} style={{display:'flex',flexDirection:'column',overflow:'hidden',background:'#090909'}}>
+          <div style={{padding:'12px 16px',borderBottom:`2px solid ${cfg.border}`,display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
+            <div style={{display:'flex',alignItems:'center',gap:7}}>
+              <div style={{width:8,height:8,borderRadius:'50%',background:cfg.color,boxShadow:`0 0 8px ${cfg.color}`}}/>
+              <span style={{fontSize:12,fontWeight:700,color:cfg.color,textTransform:'uppercase',letterSpacing:'0.06em'}}>{cfg.label}</span>
+            </div>
+            <span style={{fontSize:18,fontWeight:800,color:cfg.color}}>{colOrders.length}</span>
+          </div>
+          <div style={{flex:1,overflowY:'auto',padding:'12px',display:'flex',flexDirection:'column',gap:9}}>
+            {colOrders.length===0?<div style={{textAlign:'center',paddingTop:32,color:'#1e1e1e',fontSize:12}}>No orders</div>
+            :colOrders.map(o=><KitchenCard key={o.id} order={o} onAdvance={advance} onComplete={complete}/>)}
+          </div>
+        </div>;
+      })}
+    </div>
+  </div>;
+}
+
+// ─── SCREEN 5: ADMIN DASHBOARD ───────────────────────────
+function AdminDashboard(){
+  const [nav,setNav]=React.useState('overview');
+  const [hours,setHours]=React.useState(HOURS_DATA);
+  const [menuItems,setMenuItems]=React.useState(MENU_DATA);
+  const is=id=>nav===id;
+  const tblH=['Order','Customer','Items','Total','Mode','Status','Time'];
+  const TH=()=><thead><tr style={{background:'#0e0e0e'}}>{tblH.map(h=><th key={h} style={{padding:'9px 13px',textAlign:'left',fontSize:10,color:'#2e2e2e',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.06em'}}>{h}</th>)}</tr></thead>;
+  function TRow({o}){const b=SB[o.status];return <tr style={{borderTop:'1px solid #1a1a1a'}} onMouseEnter={e=>e.currentTarget.style.background='#181818'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+    <td style={{padding:'10px 13px',fontSize:12,fontWeight:700,color:gold}}>{o.id}</td>
+    <td style={{padding:'10px 13px',fontSize:12,color:'#C0BCB8'}}>{o.customer}</td>
+    <td style={{padding:'10px 13px',fontSize:12,color:'#4a4440'}}>{o.items}</td>
+    <td style={{padding:'10px 13px',fontSize:12,fontWeight:600,color:'#F0EBE3'}}>£{o.total.toFixed(2)}</td>
+    <td style={{padding:'10px 13px',fontSize:11,color:'#4a4440'}}>{o.mode}</td>
+    <td style={{padding:'10px 13px'}}><span style={{fontSize:10,fontWeight:700,color:b.color,background:b.bg,borderRadius:4,padding:'3px 7px'}}>{b.label}</span></td>
+    <td style={{padding:'10px 13px',fontSize:11,color:'#2e2e2e'}}>{o.time}</td>
+  </tr>;}
+  return <div style={{display:'flex',height:'calc(100vh - 44px)',background:'#0C0C0C',overflow:'hidden'}}>
+    <div style={{width:188,background:'#0e0e0e',borderRight:'1px solid #1a1a1a',display:'flex',flexDirection:'column',flexShrink:0}}>
+      <div style={{padding:'16px 13px',borderBottom:'1px solid #1a1a1a',display:'flex',alignItems:'center',gap:8}}>
+        <div style={{width:28,height:28,borderRadius:7,background:'linear-gradient(135deg,#D4A017,#C0392B)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:11,color:'#fff',flexShrink:0}}>GP</div>
+        <div><div style={{fontSize:12,fontWeight:700,color:'#F0EBE3'}}>Golden Panda</div><div style={{fontSize:10,color:'#2a2a2a'}}>Admin Panel</div></div>
+      </div>
+      <nav style={{flex:1,padding:'9px 0'}}>
+        {ADMIN_NAV.map(item=><button key={item.id} onClick={()=>setNav(item.id)} style={{display:'block',width:'100%',textAlign:'left',padding:'9px 13px',background:is(item.id)?'rgba(212,160,23,.08)':'transparent',border:'none',borderLeft:`3px solid ${is(item.id)?gold:'transparent'}`,color:is(item.id)?gold:'#3a3430',fontSize:12,fontWeight:is(item.id)?600:400,cursor:'pointer',transition:'all .15s'}}>
+          {item.label}
+        </button>)}
+      </nav>
+      <div style={{padding:'9px 13px',borderTop:'1px solid #1a1a1a',fontSize:10,color:'#1e1e1e'}}>Powered by TakeawayOS</div>
+    </div>
+    <div style={{flex:1,overflowY:'auto',padding:'22px 26px'}}>
+      {is('overview')&&<div>
+        <div style={{marginBottom:20}}><h1 style={{fontSize:18,fontWeight:700,color:'#F0EBE3'}}>Today's Overview</h1><div style={{fontSize:11,color:'#2a2a2a',marginTop:2}}>Saturday 19 April 2026</div></div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:11,marginBottom:22}}>
+          {[{l:'Orders Today',v:'14',s:'+3 since last hour',a:gold},{l:'Revenue Today',v:'£319.50',s:'Avg £22.82 / order'},{l:'Avg Order Value',v:'£22.82',s:'↑ 8% vs yesterday',a:green}].map(s=><div key={s.l} style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:10,padding:'16px 18px'}}>
+            <div style={{fontSize:10,color:'#3a3430',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:6}}>{s.l}</div>
+            <div style={{fontSize:24,fontWeight:800,color:s.a||'#F0EBE3'}}>{s.v}</div>
+            <div style={{fontSize:11,color:'#2a2a2a',marginTop:3}}>{s.s}</div>
+          </div>)}
+        </div>
+        <div style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:10,overflow:'hidden'}}>
+          <div style={{padding:'13px 16px',borderBottom:'1px solid #1e1e1e',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <span style={{fontSize:13,fontWeight:600,color:'#F0EBE3'}}>Recent Orders</span>
+            <button onClick={()=>setNav('orders')} style={{fontSize:11,color:gold,background:'none',border:'none',cursor:'pointer'}}>View all →</button>
+          </div>
+          <table style={{width:'100%',borderCollapse:'collapse'}}><TH/><tbody>{ORDERS_DATA.map(o=><TRow key={o.id} o={o}/>)}</tbody></table>
+        </div>
+      </div>}
+      {is('orders')&&<div>
+        <h1 style={{fontSize:18,fontWeight:700,color:'#F0EBE3',marginBottom:18}}>All Orders</h1>
+        <div style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:10,overflow:'hidden'}}>
+          <table style={{width:'100%',borderCollapse:'collapse'}}><TH/><tbody>{ORDERS_DATA.map(o=><TRow key={o.id} o={o}/>)}</tbody></table>
+        </div>
+      </div>}
+      {is('menu')&&<div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+          <h1 style={{fontSize:18,fontWeight:700,color:'#F0EBE3'}}>Menu Management</h1>
+          <button style={{padding:'8px 14px',background:gold,color:'#0C0C0C',border:'none',borderRadius:7,fontSize:12,fontWeight:700,cursor:'pointer'}}>+ Add Item</button>
+        </div>
+        <div style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:10,overflow:'hidden'}}>
+          <table style={{width:'100%',borderCollapse:'collapse'}}>
+            <thead><tr style={{background:'#0e0e0e'}}>{['Item','Category','Price','Available','Actions'].map(h=><th key={h} style={{padding:'9px 13px',textAlign:'left',fontSize:10,color:'#2e2e2e',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.06em'}}>{h}</th>)}</tr></thead>
+            <tbody>{menuItems.map((item,i)=><tr key={i} style={{borderTop:'1px solid #1a1a1a'}}>
+              <td style={{padding:'12px 13px',fontSize:12,color:'#C0BCB8',fontWeight:500}}>{item.name}</td>
+              <td style={{padding:'12px 13px',fontSize:11,color:'#4a4440'}}>{item.cat}</td>
+              <td style={{padding:'12px 13px',fontSize:12,fontWeight:600,color:'#F0EBE3'}}>£{item.price.toFixed(2)}</td>
+              <td style={{padding:'12px 13px'}}><Toggle on={item.on} onChange={v=>setMenuItems(ms=>ms.map((m,j)=>j===i?{...m,on:v}:m))}/></td>
+              <td style={{padding:'12px 13px'}}>
+                <button style={{fontSize:11,color:'#3a3430',background:'none',border:'1px solid #222',borderRadius:4,padding:'3px 8px',cursor:'pointer',marginRight:4}}>Edit</button>
+                <button style={{fontSize:11,color:red,background:'none',border:`1px solid rgba(192,57,43,.3)`,borderRadius:4,padding:'3px 8px',cursor:'pointer'}}>Remove</button>
+              </td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </div>}
+      {is('hours')&&<div>
+        <h1 style={{fontSize:18,fontWeight:700,color:'#F0EBE3',marginBottom:18}}>Opening Hours</h1>
+        <div style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:10,overflow:'hidden'}}>
+          {hours.map((row,i)=><div key={row.day} style={{display:'flex',alignItems:'center',gap:14,padding:'12px 16px',borderBottom:i<hours.length-1?'1px solid #1a1a1a':'none'}}>
+            <div style={{width:86,fontSize:12,fontWeight:500,color:row.on?'#C0BCB8':'#2a2a2a'}}>{row.day}</div>
+            <Toggle on={row.on} onChange={v=>setHours(hs=>hs.map((h,j)=>j===i?{...h,on:v}:h))}/>
+            {row.on?<div style={{display:'flex',alignItems:'center',gap:7,fontSize:12,color:'#4a4440'}}>
+              <input defaultValue={row.open} style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:5,padding:'5px 9px',color:'#F0EBE3',fontSize:12,outline:'none',width:64}} onFocus={foc} onBlur={blr}/>
+              <span>–</span>
+              <input defaultValue={row.close} style={{background:'#1a1a1a',border:'1px solid #222',borderRadius:5,padding:'5px 9px',color:'#F0EBE3',fontSize:12,outline:'none',width:64}} onFocus={foc} onBlur={blr}/>
+            </div>:<span style={{fontSize:12,color:'#222'}}>Closed</span>}
+          </div>)}
+        </div>
+      </div>}
+      {is('deals')&&<div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+          <h1 style={{fontSize:18,fontWeight:700,color:'#F0EBE3'}}>Deals & Discounts</h1>
+          <button style={{padding:'8px 14px',background:gold,color:'#0C0C0C',border:'none',borderRadius:7,fontSize:12,fontWeight:700,cursor:'pointer'}}>+ New Deal</button>
+        </div>
+        {[{code:'WELCOME10',type:'10% off first order',usage:'47 uses',expires:'31 May 2026',on:true},{code:'FREESHIP',type:'Free delivery on all orders',usage:'23 uses',expires:'30 Apr 2026',on:true},{code:'PANDA20',type:'20% off orders over £40',usage:'8 uses',expires:'15 Apr 2026',on:false}].map((d,i)=><div key={i} style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:9,padding:'13px 16px',marginBottom:8,display:'flex',alignItems:'center',gap:12}}>
+          <div style={{fontFamily:'monospace',fontSize:12,fontWeight:700,color:gold,background:'rgba(212,160,23,.08)',border:`1px dashed rgba(212,160,23,.25)`,borderRadius:5,padding:'4px 9px',flexShrink:0}}>{d.code}</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:12,color:'#C0BCB8',fontWeight:500}}>{d.type}</div>
+            <div style={{fontSize:11,color:'#2a2a2a',marginTop:2}}>{d.usage} · Expires {d.expires}</div>
+          </div>
+          <Toggle on={d.on} onChange={()=>{}}/>
+        </div>)}
+      </div>}
+      {is('settings')&&<div>
+        <h1 style={{fontSize:18,fontWeight:700,color:'#F0EBE3',marginBottom:18}}>Settings</h1>
+        <div style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:10,padding:'20px',display:'flex',flexDirection:'column',gap:14,maxWidth:440}}>
+          {[{l:'Restaurant Name',v:'Golden Panda'},{l:'Contact Email',v:'info@goldenpanda.co.uk'},{l:'Phone Number',v:'020 7946 0123'},{l:'Minimum Order (£)',v:'10.00'},{l:'Delivery Radius (miles)',v:'3'}].map(f=><div key={f.l} style={{display:'flex',flexDirection:'column',gap:4}}>
+            <label style={{fontSize:11,color:'#3a3430',fontWeight:500}}>{f.l}</label>
+            <input defaultValue={f.v} style={inp} onFocus={foc} onBlur={blr}/>
+          </div>)}
+          <button style={{padding:'10px',background:gold,color:'#0C0C0C',border:'none',borderRadius:7,fontSize:12,fontWeight:700,cursor:'pointer',marginTop:2}}>Save Changes</button>
+        </div>
+      </div>}
+    </div>
+  </div>;
+}
+
+// ─── SCREEN 6: SUPER ADMIN ───────────────────────────────
+function InlineEdit({value,prefix='',suffix='',onChange}){
+  const [editing,setEditing]=React.useState(false);
+  const [val,setVal]=React.useState(String(value));
+  const ref=React.useRef();
+  React.useEffect(()=>{if(editing&&ref.current)ref.current.focus();},[editing]);
+  const commit=()=>{setEditing(false);onChange(parseFloat(val)||value);};
+  return editing?<input ref={ref} value={val} onChange={e=>setVal(e.target.value)} onBlur={commit} onKeyDown={e=>{if(e.key==='Enter')commit();if(e.key==='Escape'){setVal(String(value));setEditing(false);}}}
+    style={{width:58,background:'#1a1a1a',border:`1px solid ${gold}`,borderRadius:4,padding:'3px 6px',color:'#F0EBE3',fontSize:12,outline:'none',fontFamily:'inherit'}}/>
+  :<span onClick={()=>setEditing(true)} title="Click to edit" style={{cursor:'text',color:'#C0BCB8',fontSize:12,borderBottom:'1px dashed #2a2a2a',paddingBottom:1}}>{prefix}{parseFloat(val).toFixed(suffix==='%'?1:2)}{suffix}</span>;
+}
+
+function NewRestModal({onClose,onSave}){
+  const [form,setForm]=React.useState({name:'',sub:'',email:'',plan:'Pro',comm:'8.5'});
+  const set=(k,v)=>setForm(f=>({...f,[k]:v}));
+  return <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.8)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100,backdropFilter:'blur(4px)'}}>
+    <div style={{background:'#161616',border:'1px solid #2a2a2a',borderRadius:13,width:420,boxShadow:'0 24px 64px rgba(0,0,0,.7)',overflow:'hidden'}}>
+      <div style={{padding:'16px 20px',borderBottom:'1px solid #1e1e1e',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div>
+          <div style={{fontSize:14,fontWeight:700,color:'#F0EBE3'}}>New Restaurant</div>
+          <div style={{fontSize:11,color:'#2a2a2a',marginTop:2}}>Spin up a new tenant on TakeawayOS</div>
+        </div>
+        <button onClick={onClose} style={{background:'none',border:'none',color:'#3a3430',fontSize:20,cursor:'pointer',padding:4,lineHeight:1}}>×</button>
+      </div>
+      <div style={{padding:'16px 20px',display:'flex',flexDirection:'column',gap:11}}>
+        {[{l:'Restaurant Name',k:'name',ph:'e.g. The Curry House'},{l:'Owner Email',k:'email',ph:'owner@restaurant.co.uk'}].map(f=><div key={f.k} style={{display:'flex',flexDirection:'column',gap:4}}>
+          <label style={{fontSize:11,color:'#4a4440',fontWeight:500}}>{f.l}</label>
+          <input value={form[f.k]} onChange={e=>set(f.k,e.target.value)} placeholder={f.ph} style={inp} onFocus={foc} onBlur={blr}/>
+        </div>)}
+        <div style={{display:'flex',flexDirection:'column',gap:4}}>
+          <label style={{fontSize:11,color:'#4a4440',fontWeight:500}}>Subdomain</label>
+          <div style={{display:'flex',background:'#1a1a1a',border:'1px solid #252525',borderRadius:7,overflow:'hidden'}}>
+            <input value={form.sub} onChange={e=>set('sub',e.target.value)} placeholder="curryhouse" style={{flex:1,background:'transparent',border:'none',padding:'9px 11px',color:'#F0EBE3',fontSize:13,outline:'none',fontFamily:'inherit'}}/>
+            <span style={{padding:'9px 11px',fontSize:11,color:'#2a2a2a',background:'#141414',borderLeft:'1px solid #222',whiteSpace:'nowrap'}}>.takeawayos.co.uk</span>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:9}}>
+          <div style={{flex:1,display:'flex',flexDirection:'column',gap:4}}>
+            <label style={{fontSize:11,color:'#4a4440',fontWeight:500}}>Plan</label>
+            <select value={form.plan} onChange={e=>set('plan',e.target.value)} style={{...inp,cursor:'pointer'}}>
+              <option>Starter</option><option>Pro</option><option>Enterprise</option>
+            </select>
+          </div>
+          <div style={{flex:1,display:'flex',flexDirection:'column',gap:4}}>
+            <label style={{fontSize:11,color:'#4a4440',fontWeight:500}}>Commission (%)</label>
+            <input value={form.comm} onChange={e=>set('comm',e.target.value)} placeholder="8.5" style={inp} onFocus={foc} onBlur={blr}/>
+          </div>
+        </div>
+      </div>
+      <div style={{padding:'13px 20px',borderTop:'1px solid #1e1e1e',display:'flex',gap:8,justifyContent:'flex-end'}}>
+        <button onClick={onClose} style={{padding:'8px 15px',background:'transparent',border:'1px solid #222',borderRadius:7,color:'#4a4440',fontSize:12,fontWeight:600,cursor:'pointer'}}>Cancel</button>
+        <button onClick={()=>{onSave(form);onClose();}} style={{padding:'8px 16px',background:'linear-gradient(135deg,#D4A017,#C0392B)',border:'none',borderRadius:7,color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer'}}>Create Restaurant</button>
+      </div>
+    </div>
+  </div>;
+}
+
+function SuperAdmin(){
+  const [restaurants,setRestaurants]=React.useState(RESTAURANTS);
+  const [modal,setModal]=React.useState(false);
+  const [search,setSearch]=React.useState('');
+  const filtered=restaurants.filter(r=>r.name.toLowerCase().includes(search.toLowerCase())||r.owner.toLowerCase().includes(search.toLowerCase()));
+  const toggle=id=>setRestaurants(rs=>rs.map(r=>r.id===id?{...r,status:r.status==='active'?'inactive':'active'}:r));
+  const update=(id,field,val)=>setRestaurants(rs=>rs.map(r=>r.id===id?{...r,[field]:val}:r));
+  const add=form=>setRestaurants(rs=>[...rs,{id:rs.length+1,name:form.name,sub:form.sub,owner:form.email,plan:form.plan,comm:parseFloat(form.comm)||8.5,fee:form.plan==='Enterprise'?99:form.plan==='Pro'?49:29,status:'active',orders:0}]);
+  const mrr=restaurants.filter(r=>r.status==='active').reduce((s,r)=>s+r.fee,0);
+  return <div style={{minHeight:'calc(100vh - 44px)',background:'#0C0C0C',padding:'24px 26px'}}>
+    {modal&&<NewRestModal onClose={()=>setModal(false)} onSave={add}/>}
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:22}}>
+      <div>
+        <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:3}}><div style={{width:7,height:7,borderRadius:'50%',background:gold}}/><span style={{fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.1em',color:'#3a3430'}}>TakeawayOS</span></div>
+        <h1 style={{fontSize:19,fontWeight:800,color:'#F0EBE3'}}>Super Admin</h1>
+        <p style={{fontSize:11,color:'#2a2a2a',marginTop:2}}>Platform-wide restaurant management</p>
+      </div>
+      <button onClick={()=>setModal(true)} style={{padding:'9px 16px',background:'linear-gradient(135deg,#D4A017,#C0392B)',border:'none',borderRadius:8,color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer'}}>+ New Restaurant</button>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:11,marginBottom:20}}>
+      {[{l:'Total Restaurants',v:restaurants.length,a:'#F0EBE3'},{l:'Active',v:restaurants.filter(r=>r.status==='active').length,a:green},{l:'Platform MRR',v:`£${mrr}`,a:gold},{l:'Total Orders',v:restaurants.reduce((s,r)=>s+r.orders,0).toLocaleString(),a:'#F0EBE3'}].map(s=><div key={s.l} style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:9,padding:'13px 15px'}}>
+        <div style={{fontSize:10,color:'#2a2a2a',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:5}}>{s.l}</div>
+        <div style={{fontSize:21,fontWeight:800,color:s.a}}>{s.v}</div>
+      </div>)}
+    </div>
+    <div style={{marginBottom:11}}>
+      <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name or email…"
+        style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:7,padding:'8px 12px',color:'#F0EBE3',fontSize:12,outline:'none',width:270,fontFamily:'inherit'}}
+        onFocus={foc} onBlur={e=>e.target.style.borderColor='#1e1e1e'}/>
+    </div>
+    <div style={{background:'#141414',border:'1px solid #1e1e1e',borderRadius:10,overflow:'hidden'}}>
+      <table style={{width:'100%',borderCollapse:'collapse'}}>
+        <thead><tr style={{background:'#0e0e0e'}}>{['Restaurant','Owner','Plan','Commission','Monthly Fee','Orders','Status','Actions'].map(h=><th key={h} style={{padding:'9px 13px',textAlign:'left',fontSize:10,color:'#2e2e2e',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.06em',whiteSpace:'nowrap'}}>{h}</th>)}</tr></thead>
+        <tbody>{filtered.map(r=>{const pc=PLAN_C[r.plan];return <tr key={r.id} style={{borderTop:'1px solid #1a1a1a',transition:'background .1s'}} onMouseEnter={e=>e.currentTarget.style.background='#181818'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+          <td style={{padding:'12px 13px'}}>
+            <div style={{fontSize:12,fontWeight:600,color:'#F0EBE3'}}>{r.name}</div>
+            <div style={{fontSize:10,color:'#1e1e1e',fontFamily:'monospace',marginTop:2}}>{r.sub}.takeawayos.co.uk</div>
+          </td>
+          <td style={{padding:'12px 13px',fontSize:11,color:'#4a4440',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.owner}</td>
+          <td style={{padding:'12px 13px'}}><span style={{fontSize:10,fontWeight:700,color:pc.color,background:pc.bg,borderRadius:3,padding:'3px 7px'}}>{r.plan}</span></td>
+          <td style={{padding:'12px 13px'}}><InlineEdit value={r.comm} suffix="%" onChange={v=>update(r.id,'comm',v)}/></td>
+          <td style={{padding:'12px 13px'}}><InlineEdit value={r.fee} prefix="£" onChange={v=>update(r.id,'fee',v)}/></td>
+          <td style={{padding:'12px 13px',fontSize:12,color:'#4a4440'}}>{r.orders.toLocaleString()}</td>
+          <td style={{padding:'12px 13px'}}><span style={{fontSize:10,fontWeight:700,borderRadius:20,padding:'3px 9px',color:r.status==='active'?green:'#3a3430',background:r.status==='active'?'rgba(46,204,113,.1)':'rgba(58,52,48,.15)'}}>{r.status==='active'?'● Active':'○ Inactive'}</span></td>
+          <td style={{padding:'12px 13px'}}><div style={{display:'flex',gap:5}}>
+            <button style={{fontSize:11,color:'#3a3430',background:'none',border:'1px solid #222',borderRadius:4,padding:'3px 7px',cursor:'pointer'}}>Login As</button>
+            <button onClick={()=>toggle(r.id)} style={{fontSize:11,background:'none',borderRadius:4,padding:'3px 7px',cursor:'pointer',color:r.status==='active'?red:green,border:`1px solid ${r.status==='active'?'rgba(192,57,43,.3)':'rgba(46,204,113,.3)'}`}}>{r.status==='active'?'Suspend':'Activate'}</button>
+          </div></td>
+        </tr>;})}
+        </tbody>
+      </table>
+    </div>
+  </div>;
+}
+
+// ─── SCREEN 7: CASHIER / STAFF KIOSK ────────────────────
+
+const ALL_ITEMS = Object.entries(MENU).flatMap(([cat, items]) => items.map(i => ({...i, cat})));
+
+const CAT_TABS = ['All', ...Object.keys(MENU)];
+
+const NOTE_OPTIONS = ['No chilli', 'Extra sauce', 'Gluten free', 'No nuts', 'Well done', 'Less salt'];
+
+function PaymentModal({total, onComplete, onClose}) {
+  const [method, setMethod] = React.useState('card');
+  const [cash, setCash] = React.useState('');
+  const [processing, setProcessing] = React.useState(false);
+  const [done, setDone] = React.useState(false);
+  const cashNum = parseFloat(cash) || 0;
+  const change = cashNum - total;
+
+  const PRESETS = [total, Math.ceil(total), Math.ceil(total/5)*5, Math.ceil(total/10)*10].filter((v,i,a)=>a.indexOf(v)===i).slice(0,4);
+
+  const handleCharge = () => {
+    setProcessing(true);
+    setTimeout(() => { setProcessing(false); setDone(true); }, method === 'card' ? 1600 : 400);
+  };
+
+  if (done) return (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.85)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,backdropFilter:'blur(6px)'}}>
+      <div style={{background:'#111',border:'1px solid #1e1e1e',borderRadius:16,padding:'44px 48px',textAlign:'center',minWidth:340}}>
+        <div style={{width:72,height:72,borderRadius:'50%',background:'rgba(46,204,113,.15)',border:`2px solid ${green}`,margin:'0 auto 18px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,color:green}}>✓</div>
+        <div style={{fontSize:22,fontWeight:800,color:'#F0EBE3',marginBottom:6}}>Payment taken</div>
+        {method==='cash'&&change>=0&&<div style={{fontSize:15,color:gold,fontWeight:600,marginBottom:4}}>Change: £{change.toFixed(2)}</div>}
+        <div style={{fontSize:13,color:'#4a4440',marginBottom:28}}>Order sent to kitchen</div>
+        <button onClick={onComplete} style={{padding:'12px 32px',background:'linear-gradient(135deg,#D4A017,#C0392B)',border:'none',borderRadius:9,color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer'}}>New Order</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.82)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,backdropFilter:'blur(6px)'}}>
+      <div style={{background:'#111',border:'1px solid #222',borderRadius:16,width:420,overflow:'hidden',boxShadow:'0 32px 80px rgba(0,0,0,.7)'}}>
+        <div style={{padding:'20px 24px',borderBottom:'1px solid #1a1a1a',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div style={{fontSize:16,fontWeight:800,color:'#F0EBE3'}}>Take Payment</div>
+          <button onClick={onClose} style={{background:'none',border:'none',color:'#4a4440',fontSize:22,cursor:'pointer',lineHeight:1}}>×</button>
+        </div>
+
+        {/* Total */}
+        <div style={{padding:'20px 24px',borderBottom:'1px solid #1a1a1a',textAlign:'center'}}>
+          <div style={{fontSize:11,color:'#4a4440',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:6}}>Amount due</div>
+          <div style={{fontSize:38,fontWeight:900,color:gold,letterSpacing:'-0.02em'}}>£{total.toFixed(2)}</div>
+        </div>
+
+        {/* Method toggle */}
+        <div style={{padding:'16px 24px',borderBottom:'1px solid #1a1a1a'}}>
+          <div style={{display:'flex',gap:8}}>
+            {[{id:'card',label:'💳  Card'},{id:'cash',label:'💵  Cash'}].map(m=>(
+              <button key={m.id} onClick={()=>setMethod(m.id)} style={{flex:1,padding:'11px',borderRadius:8,border:`1.5px solid ${method===m.id?gold:'#252525'}`,background:method===m.id?'rgba(212,160,23,.1)':'transparent',color:method===m.id?gold:'#4a4440',fontSize:13,fontWeight:700,cursor:'pointer',transition:'all .15s'}}>
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Cash input */}
+        {method==='cash' && (
+          <div style={{padding:'16px 24px',borderBottom:'1px solid #1a1a1a'}}>
+            <div style={{fontSize:11,color:'#4a4440',marginBottom:8,textTransform:'uppercase',letterSpacing:'0.06em'}}>Cash tendered</div>
+            <div style={{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
+              {PRESETS.map(p=>(
+                <button key={p} onClick={()=>setCash(p.toFixed(2))} style={{padding:'6px 12px',borderRadius:6,border:`1px solid ${cash===p.toFixed(2)?gold:'#252525'}`,background:cash===p.toFixed(2)?'rgba(212,160,23,.1)':'#1a1a1a',color:cash===p.toFixed(2)?gold:'#6a6460',fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                  £{p.toFixed(2)}
+                </button>
+              ))}
+            </div>
+            <input value={cash} onChange={e=>setCash(e.target.value)} placeholder="0.00" type="number"
+              style={{width:'100%',background:'#1a1a1a',border:'1px solid #252525',borderRadius:8,padding:'11px 14px',color:'#F0EBE3',fontSize:16,fontWeight:700,outline:'none'}}
+              onFocus={e=>e.target.style.borderColor=gold} onBlur={e=>e.target.style.borderColor='#252525'}/>
+            {cashNum > 0 && <div style={{marginTop:8,fontSize:13,color: change>=0?green:red,fontWeight:600}}>
+              {change>=0 ? `Change: £${change.toFixed(2)}` : `Short by £${Math.abs(change).toFixed(2)}`}
+            </div>}
+          </div>
+        )}
+
+        {method==='card' && (
+          <div style={{padding:'16px 24px',borderBottom:'1px solid #1a1a1a',textAlign:'center',color:'#4a4440',fontSize:13}}>
+            Present card or device to reader
+          </div>
+        )}
+
+        <div style={{padding:'16px 24px'}}>
+          <button onClick={handleCharge} disabled={processing||(method==='cash'&&change<0)} style={{width:'100%',padding:'14px',borderRadius:9,border:'none',background:processing?'#1e1e1e':'linear-gradient(135deg,#D4A017,#C0392B)',color:processing?'#4a4440':'#fff',fontSize:15,fontWeight:800,cursor:processing?'not-allowed':'pointer',transition:'all .3s'}}>
+            {processing ? (method==='card'?'Awaiting card…':'Processing…') : `Charge £${total.toFixed(2)}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CashierKiosk() {
+  const [tab, setTab] = React.useState('All');
+  const [query, setQuery] = React.useState('');
+  const [ticket, setTicket] = React.useState([]); // [{...item, lineId, qty, note}]
+  const [selectedLine, setSelectedLine] = React.useState(null);
+  const [showPayment, setShowPayment] = React.useState(false);
+  const [mode, setMode] = React.useState('dine-in'); // dine-in | collection
+  const searchRef = React.useRef();
+
+  const filtered = ALL_ITEMS.filter(item => {
+    const matchTab = tab === 'All' || item.cat === tab;
+    const matchQ = !query || item.name.toLowerCase().includes(query.toLowerCase());
+    return matchTab && matchQ;
+  });
+
+  const addItem = (item) => {
+    const existing = ticket.find(l => l.id === item.id && !l.note);
+    if (existing) {
+      setTicket(t => t.map(l => l.lineId === existing.lineId ? {...l, qty: l.qty+1} : l));
+    } else {
+      const lineId = Date.now() + Math.random();
+      setTicket(t => [...t, {...item, lineId, qty:1, note:''}]);
+      setSelectedLine(lineId);
+    }
+  };
+
+  const removeItem = (lineId) => {
+    setTicket(t => t.filter(l => l.lineId !== lineId));
+    setSelectedLine(null);
+  };
+
+  const adjustQty = (lineId, delta) => {
+    setTicket(t => t.map(l => l.lineId===lineId ? {...l, qty: Math.max(1, l.qty+delta)} : l));
+  };
+
+  const addNote = (lineId, note) => {
+    setTicket(t => t.map(l => l.lineId===lineId ? {...l, note} : l));
+  };
+
+  const subtotal = ticket.reduce((s,l) => s + l.price * l.qty, 0);
+  const selectedLineObj = ticket.find(l => l.lineId === selectedLine);
+
+  const catAccent = tab !== 'All' ? (CAT_STYLE[tab]?.accent || gold) : gold;
+
+  return (
+    <div style={{display:'flex', height:'calc(100vh - 44px)', background:'#080808', overflow:'hidden', fontFamily:'inherit'}}>
+      {showPayment && <PaymentModal total={subtotal} onComplete={()=>{setTicket([]);setSelectedLine(null);setShowPayment(false);}} onClose={()=>setShowPayment(false)}/>}
+
+      {/* ════ LEFT: Item Picker ════ */}
+      <div style={{flex:1, display:'flex', flexDirection:'column', overflow:'hidden', borderRight:'1px solid #161616'}}>
+
+        {/* Search + mode */}
+        <div style={{padding:'14px 18px', background:'#0a0a0a', borderBottom:'1px solid #161616', display:'flex', gap:10, alignItems:'center', flexShrink:0}}>
+          <div style={{flex:1, position:'relative'}}>
+            <svg style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',opacity:.4}} width="14" height="14" viewBox="0 0 14 14"><circle cx="6" cy="6" r="5" stroke="#F0EBE3" strokeWidth="1.5" fill="none"/><line x1="10" y1="10" x2="13" y2="13" stroke="#F0EBE3" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            <input ref={searchRef} value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search items…"
+              style={{width:'100%',background:'#141414',border:'1px solid #1e1e1e',borderRadius:9,padding:'11px 12px 11px 34px',color:'#F0EBE3',fontSize:14,outline:'none'}}
+              onFocus={e=>e.target.style.borderColor=gold} onBlur={e=>e.target.style.borderColor='#1e1e1e'}/>
+            {query && <button onClick={()=>setQuery('')} style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',color:'#4a4440',fontSize:16,cursor:'pointer',lineHeight:1}}>×</button>}
+          </div>
+          {/* Mode toggle */}
+          <div style={{display:'flex',gap:0,background:'#141414',borderRadius:8,border:'1px solid #1e1e1e',overflow:'hidden',flexShrink:0}}>
+            {['dine-in','collection'].map(m=>(
+              <button key={m} onClick={()=>setMode(m)} style={{padding:'9px 14px',border:'none',background:mode===m?gold:'transparent',color:mode===m?'#0C0C0C':'#4a4440',fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize',transition:'all .15s'}}>
+                {m==='dine-in'?'Dine In':'Collection'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Category tabs */}
+        <div style={{display:'flex',gap:0,background:'#0a0a0a',borderBottom:'1px solid #161616',overflowX:'auto',flexShrink:0,padding:'0 18px'}}>
+          {CAT_TABS.map(c => {
+            const isActive = tab === c;
+            const accent = c !== 'All' ? (CAT_STYLE[c]?.accent || gold) : gold;
+            return (
+              <button key={c} onClick={()=>{setTab(c);setQuery('');}} style={{padding:'0 16px',height:42,border:'none',background:'transparent',borderBottom:`2.5px solid ${isActive?accent:'transparent'}`,color:isActive?accent:'#4a4440',fontSize:13,fontWeight:isActive?700:400,cursor:'pointer',whiteSpace:'nowrap',transition:'all .15s',flexShrink:0}}>
+                {c}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Item grid — large tap targets */}
+        <div style={{flex:1, overflowY:'auto', padding:'16px 18px'}}>
+          <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(170px, 1fr))', gap:10}}>
+            {filtered.map(item => {
+              const inTicket = ticket.find(l => l.id === item.id);
+              const totalQty = ticket.filter(l => l.id === item.id).reduce((s,l)=>s+l.qty,0);
+              const cs = CAT_STYLE[item.cat] || CAT_STYLE['Mains'];
+              return (
+                <button key={item.id} onClick={()=>addItem(item)}
+                  style={{background: totalQty>0 ? `rgba(${cs.accent==='#D4A017'?'212,160,23':'192,57,43'}, .08)` : '#111',
+                    border:`1.5px solid ${totalQty>0?cs.accent+'55':'#1e1e1e'}`,
+                    borderRadius:10, padding:'14px 14px 13px', cursor:'pointer', textAlign:'left',
+                    display:'flex', flexDirection:'column', gap:6, transition:'all .12s',
+                    position:'relative',
+                  }}
+                  onMouseEnter={e=>{ e.currentTarget.style.borderColor=cs.accent+'88'; e.currentTarget.style.background='#161616'; }}
+                  onMouseLeave={e=>{ e.currentTarget.style.borderColor=totalQty>0?cs.accent+'55':'#1e1e1e'; e.currentTarget.style.background=totalQty>0?`rgba(${cs.accent==='#D4A017'?'212,160,23':'192,57,43'}, .08)`:'#111'; }}
+                >
+                  {totalQty > 0 && (
+                    <div style={{position:'absolute',top:8,right:8,width:22,height:22,borderRadius:'50%',background:cs.accent,color:'#0C0C0C',fontSize:11,fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                      {totalQty}
+                    </div>
+                  )}
+                  <div style={{fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:'0.07em',color:cs.accent,opacity:.7}}>{item.cat}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'#F0EBE3',lineHeight:1.25,textWrap:'pretty'}}>{item.name}</div>
+                  <div style={{fontSize:14,fontWeight:800,color:cs.accent,marginTop:2}}>£{item.price.toFixed(2)}</div>
+                </button>
+              );
+            })}
+            {filtered.length === 0 && (
+              <div style={{gridColumn:'1/-1',textAlign:'center',paddingTop:48,color:'#2a2a2a',fontSize:13}}>No items match "{query}"</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ════ RIGHT: Order Ticket ════ */}
+      <div style={{width:340, display:'flex', flexDirection:'column', background:'#0a0a0a', flexShrink:0}}>
+
+        {/* Ticket header */}
+        <div style={{padding:'14px 18px', borderBottom:'1px solid #161616', display:'flex', justifyContent:'space-between', alignItems:'center', flexShrink:0}}>
+          <div>
+            <div style={{fontSize:15,fontWeight:800,color:'#F0EBE3'}}>Order Ticket</div>
+            <div style={{fontSize:11,color:'#3a3430',marginTop:2,textTransform:'capitalize'}}>{mode} · {ticket.length === 0 ? 'Empty' : `${ticket.reduce((s,l)=>s+l.qty,0)} items`}</div>
+          </div>
+          {ticket.length > 0 && (
+            <button onClick={()=>{setTicket([]);setSelectedLine(null);}} style={{fontSize:11,color:red,background:'none',border:`1px solid rgba(192,57,43,.3)`,borderRadius:5,padding:'5px 10px',cursor:'pointer',fontWeight:600}}>
+              Void all
+            </button>
+          )}
+        </div>
+
+        {/* Line items */}
+        <div style={{flex:1, overflowY:'auto', padding:'10px 0'}}>
+          {ticket.length === 0 ? (
+            <div style={{textAlign:'center',paddingTop:56,color:'#1e1e1e'}}>
+              <svg width="48" height="48" viewBox="0 0 48 48" style={{opacity:.3}} fill="none"><rect x="10" y="6" width="28" height="36" rx="4" stroke="#F0EBE3" strokeWidth="2"/><line x1="16" y1="16" x2="32" y2="16" stroke="#F0EBE3" strokeWidth="1.5"/><line x1="16" y1="22" x2="32" y2="22" stroke="#F0EBE3" strokeWidth="1.5"/><line x1="16" y1="28" x2="24" y2="28" stroke="#F0EBE3" strokeWidth="1.5"/></svg>
+              <div style={{fontSize:12,color:'#2a2a2a',marginTop:10}}>Tap items to add</div>
+            </div>
+          ) : ticket.map(line => {
+            const isSelected = selectedLine === line.lineId;
+            const cs = CAT_STYLE[line.cat] || CAT_STYLE['Mains'];
+            return (
+              <div key={line.lineId} onClick={()=>setSelectedLine(isSelected?null:line.lineId)}
+                style={{padding:'10px 18px', borderBottom:'1px solid #141414', cursor:'pointer',
+                  background: isSelected ? '#141414' : 'transparent',
+                  borderLeft: isSelected ? `3px solid ${cs.accent}` : '3px solid transparent',
+                  transition:'all .1s',
+                }}>
+                <div style={{display:'flex',alignItems:'flex-start',gap:10}}>
+                  {/* Qty controls */}
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,flexShrink:0}}>
+                    <button onClick={e=>{e.stopPropagation();adjustQty(line.lineId,1);}} style={{width:24,height:24,borderRadius:5,border:'none',background:'#1e1e1e',color:'#F0EBE3',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>+</button>
+                    <span style={{fontSize:13,fontWeight:800,color:cs.accent,minWidth:16,textAlign:'center'}}>{line.qty}</span>
+                    <button onClick={e=>{e.stopPropagation();adjustQty(line.lineId,-1);}} style={{width:24,height:24,borderRadius:5,border:'none',background:'#1e1e1e',color:'#F0EBE3',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>−</button>
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:600,color:'#F0EBE3',lineHeight:1.2}}>{line.name}</div>
+                    {line.note && <div style={{fontSize:10,color:cs.accent,marginTop:2,fontStyle:'italic'}}>↳ {line.note}</div>}
+                  </div>
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6}}>
+                    <span style={{fontSize:13,fontWeight:700,color:'#F0EBE3'}}>£{(line.price*line.qty).toFixed(2)}</span>
+                    <button onClick={e=>{e.stopPropagation();removeItem(line.lineId);}} style={{fontSize:10,color:'#C0392B',background:'none',border:'1px solid rgba(192,57,43,.25)',borderRadius:4,padding:'2px 7px',cursor:'pointer',fontWeight:600}}>void</button>
+                  </div>
+                </div>
+
+                {/* Note picker (expanded when selected) */}
+                {isSelected && (
+                  <div style={{marginTop:10,paddingTop:10,borderTop:'1px solid #1e1e1e'}} onClick={e=>e.stopPropagation()}>
+                    <div style={{fontSize:10,color:'#4a4440',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.06em'}}>Add note</div>
+                    <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                      {NOTE_OPTIONS.map(n=>(
+                        <button key={n} onClick={()=>addNote(line.lineId, line.note===n?'':n)}
+                          style={{padding:'4px 9px',borderRadius:5,fontSize:11,fontWeight:600,cursor:'pointer',border:`1px solid ${line.note===n?cs.accent:'#252525'}`,background:line.note===n?`${cs.accent}22`:'transparent',color:line.note===n?cs.accent:'#5a5450',transition:'all .1s'}}>
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Totals + Pay */}
+        <div style={{padding:'14px 18px 18px', borderTop:'1px solid #161616', flexShrink:0, background:'#0a0a0a'}}>
+          {ticket.length > 0 && <>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:5,fontSize:12,color:'#4a4440'}}><span>Subtotal</span><span>£{subtotal.toFixed(2)}</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:14,fontSize:12,color:'#4a4440'}}><span>VAT (20%)</span><span>incl.</span></div>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:16,fontSize:18,fontWeight:900}}>
+              <span style={{color:'#F0EBE3'}}>Total</span>
+              <span style={{color:gold}}>£{subtotal.toFixed(2)}</span>
+            </div>
+          </>}
+          <button onClick={()=>ticket.length>0&&setShowPayment(true)} style={{
+            width:'100%', padding:'15px', borderRadius:10, border:'none',
+            background: ticket.length>0 ? 'linear-gradient(135deg,#D4A017,#C0392B)' : '#141414',
+            color: ticket.length>0 ? '#fff' : '#2a2a2a',
+            fontSize:15, fontWeight:800, cursor: ticket.length>0?'pointer':'not-allowed',
+            letterSpacing:'0.02em', transition:'opacity .2s',
+          }}>
+            {ticket.length === 0 ? 'Add items to begin' : `Take Payment · £${subtotal.toFixed(2)}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── APP SHELL ───────────────────────────────────────────
+const SCREENS=[
+  {id:'ordering',label:'Customer Ordering',tag:'1'},
+  {id:'checkout',label:'Checkout',tag:'2'},
+  {id:'confirmation',label:'Confirmation',tag:'3'},
+  {id:'kitchen',label:'Kitchen Display',tag:'4'},
+  {id:'admin',label:'Admin Dashboard',tag:'5'},
+  {id:'superadmin',label:'Super Admin',tag:'6'},
+  {id:'kiosk',label:'Cashier Kiosk',tag:'7'},
+];
+
+function NavBar({current,onChange}){
+  return <div style={{position:'fixed',top:0,left:0,right:0,height:44,zIndex:1000,background:'#080808',borderBottom:'1px solid #161616',display:'flex',alignItems:'center',paddingLeft:12}}>
+    <div style={{display:'flex',alignItems:'center',gap:6,marginRight:16,paddingRight:16,borderRight:'1px solid #161616',flexShrink:0}}>
+      <div style={{width:20,height:20,borderRadius:5,background:'linear-gradient(135deg,#D4A017,#C0392B)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:'#fff'}}>T</div>
+      <span style={{fontSize:12,fontWeight:700,color:'#F0EBE3',whiteSpace:'nowrap'}}>TakeawayOS</span>
+    </div>
+    <div style={{display:'flex',alignItems:'center',overflowX:'auto'}}>
+      {SCREENS.map(s=><button key={s.id} onClick={()=>onChange(s.id)} style={{display:'flex',alignItems:'center',gap:5,padding:'0 11px',height:44,background:'transparent',border:'none',borderBottom:`2px solid ${current===s.id?gold:'transparent'}`,color:current===s.id?gold:'#3a3430',fontSize:12,fontWeight:current===s.id?600:400,cursor:'pointer',whiteSpace:'nowrap',transition:'color .15s'}}>
+        <span style={{width:14,height:14,borderRadius:3,background:current===s.id?'rgba(212,160,23,.2)':'#161616',fontSize:8,fontWeight:700,color:current===s.id?gold:'#222',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{s.tag}</span>
+        {s.label}
+      </button>)}
+    </div>
+  </div>;
+}
+
+function App(){
+  const [screen,setScreen]=React.useState(()=>localStorage.getItem('tos_screen')||'ordering');
+  const [basket,setBasket]=React.useState([]);
+  const [order,setOrder]=React.useState(null);
+  const go=s=>{setScreen(s);localStorage.setItem('tos_screen',s);};
+  const addToBasket=item=>setBasket(b=>[...b,item]);
+  const removeFromBasket=id=>setBasket(b=>{const idx=[...b].reverse().findIndex(i=>i.id===id);if(idx===-1)return b;const copy=[...b];copy.splice(b.length-1-idx,1);return copy;});
+  const placeOrder=details=>{setOrder({...details,items:basket});go('confirmation');};
+  return <div style={{minHeight:'100vh',background:'#0C0C0C',paddingTop:44}}>
+    <NavBar current={screen} onChange={go}/>
+    {screen==='ordering'&&<CustomerOrdering basket={basket} addToBasket={addToBasket} removeFromBasket={removeFromBasket} onCheckout={()=>go('checkout')}/>}
+    {screen==='checkout'&&<Checkout basket={basket} onPlaceOrder={placeOrder} onBack={()=>go('ordering')}/>}
+    {screen==='confirmation'&&<OrderConfirmation order={order} onNewOrder={()=>{setBasket([]);setOrder(null);go('ordering');}}/>}
+    {screen==='kitchen'&&<KitchenScreen/>}
+    {screen==='admin'&&<AdminDashboard/>}
+    {screen==='superadmin'&&<SuperAdmin/>}
+    {screen==='kiosk'&&<CashierKiosk/>}
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
