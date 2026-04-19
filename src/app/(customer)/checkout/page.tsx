@@ -26,9 +26,15 @@ export default function CheckoutPage() {
 
   const total = Math.max(0, subtotal - discount)
 
+  const apiPath = (base: string) => {
+    if (typeof window === 'undefined') return base
+    const t = new URLSearchParams(window.location.search).get('tenant')
+    return t ? `${base}?tenant=${t}` : base
+  }
+
   const applyDeal = async () => {
     if (!dealCode) return
-    const res = await fetch('/api/deals', {
+    const res = await fetch(apiPath('/api/deals'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code: dealCode, subtotal }),
@@ -54,7 +60,7 @@ export default function CheckoutPage() {
     setError('')
 
     try {
-      const res = await fetch('/api/orders', {
+      const res = await fetch(apiPath('/api/orders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -75,7 +81,8 @@ export default function CheckoutPage() {
       if (!res.ok) throw new Error('Failed to place order')
       const { orderId } = await res.json()
       clearBasket()
-      router.push(`/confirmation/${orderId}`)
+      const t = new URLSearchParams(window.location.search).get('tenant')
+      router.push(`/confirmation/${orderId}${t ? `?tenant=${t}` : ''}`)
     } catch (e) {
       setError('Something went wrong. Please try again.')
     } finally {
