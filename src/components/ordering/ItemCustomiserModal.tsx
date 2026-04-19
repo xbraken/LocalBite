@@ -142,7 +142,7 @@ export function ItemCustomiserModal({ item, onAdd, onClose }: ItemCustomiserModa
               <div style={{ padding: '0 24px 14px', display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
                 {group.options.map((opt) => {
                   const isChosen = sel.has(opt.id)
-                  const isDisabled = !isChosen && chosenCount >= group.maxChoices
+                  const isDisabled = !isChosen && group.maxChoices > 1 && chosenCount >= group.maxChoices
 
                   return (
                     <button

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { AdminOverview } from '@/components/admin/OverviewTab'
 import { AdminOrders } from '@/components/admin/OrdersTab'
 import { MenuBuilder } from '@/components/admin/MenuBuilder'
+import { CategoriesTab } from '@/components/admin/CategoriesTab'
 import { OpeningHoursTab } from '@/components/admin/OpeningHoursTab'
 import { DealsTab } from '@/components/admin/DealsTab'
 import { SettingsTab } from '@/components/admin/SettingsTab'
@@ -11,6 +12,7 @@ import { SettingsTab } from '@/components/admin/SettingsTab'
 const TABS = [
   { id: 'overview', label: 'Overview' },
   { id: 'orders', label: 'Orders' },
+  { id: 'categories', label: 'Categories' },
   { id: 'menu', label: 'Menu Management' },
   { id: 'hours', label: 'Opening Hours' },
   { id: 'deals', label: 'Deals & Discounts' },
@@ -65,6 +67,7 @@ export default function AdminPage() {
       <main style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
         {activeTab === 'overview' && <AdminOverview />}
         {activeTab === 'orders' && <AdminOrders />}
+        {activeTab === 'categories' && <CategoriesTab />}
         {activeTab === 'menu' && <MenuBuilder />}
         {activeTab === 'hours' && <OpeningHoursTab />}
         {activeTab === 'deals' && <DealsTab />}

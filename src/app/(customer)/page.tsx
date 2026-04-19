@@ -1,6 +1,6 @@
 import { getTenantFromRequest } from '@/lib/tenant'
 import { db } from '@/db'
-import { menuItems, modifierGroups, modifierOptions } from '@/db/schema'
+import { menuItems, modifierGroups, modifierOptions, categories as categoriesTable } from '@/db/schema'
 import { eq, asc, inArray } from 'drizzle-orm'
 import { CustomerOrdering } from '@/components/ordering/CustomerOrdering'
 import type { MenuByCategory } from '@/types/menu'
@@ -82,9 +82,16 @@ export default async function OrderingPage() {
     menu[item.category].push(menuItem)
   }
 
+  const categoryRows = await db
+    .select()
+    .from(categoriesTable)
+    .where(eq(categoriesTable.restaurantId, tenant.id))
+    .orderBy(asc(categoriesTable.sortOrder), asc(categoriesTable.name))
+
   return (
     <CustomerOrdering
       menu={menu}
+      categories={categoryRows.map((c) => ({ name: c.name, imageUrl: c.imageUrl, sortOrder: c.sortOrder }))}
       restaurant={{
         id: tenant.id,
         name: tenant.name,

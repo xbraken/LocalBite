@@ -16,6 +16,14 @@ export const restaurants = sqliteTable('restaurants', {
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 })
 
+export const categories = sqliteTable('categories', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  restaurantId: integer('restaurant_id').notNull().references(() => restaurants.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  imageUrl: text('image_url'),
+  sortOrder: integer('sort_order').notNull().default(0),
+})
+
 export const menuItems = sqliteTable('menu_items', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   restaurantId: integer('restaurant_id').notNull().references(() => restaurants.id, { onDelete: 'cascade' }),
