@@ -20,13 +20,6 @@ declare module 'next-auth' {
   }
 }
 
-declare module 'next-auth/jwt' {
-  interface JWT {
-    role: string
-    restaurantId: number | null
-  }
-}
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
@@ -66,8 +59,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token
     },
     session({ session, token }) {
-      session.user.role = token.role
-      session.user.restaurantId = token.restaurantId
+      session.user.role = token.role as string
+      session.user.restaurantId = token.restaurantId as number | null
       return session
     },
   },
