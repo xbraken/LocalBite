@@ -17,6 +17,12 @@ const patchSchema = z.object({
   contactEmail: z.string().email().nullable().optional(),
   contactPhone: z.string().nullable().optional(),
   openingHours: z.array(openingHoursRowSchema).optional(),
+  deliveryEnabled: z.boolean().optional(),
+  deliveryOriginPostcode: z.string().nullable().optional(),
+  deliveryRadiusMiles: z.number().min(0).max(50).optional(),
+  deliveryBaseFee: z.number().min(0).max(50).optional(),
+  deliveryPerMileFee: z.number().min(0).max(20).optional(),
+  deliveryMinOrder: z.number().min(0).max(500).optional(),
 })
 
 export async function GET() {
@@ -39,6 +45,14 @@ export async function GET() {
       contactEmail: restaurant.contactEmail,
       contactPhone: restaurant.contactPhone,
       openingHours: restaurant.openingHours ? JSON.parse(restaurant.openingHours) : null,
+      delivery: {
+        enabled: Boolean(restaurant.deliveryEnabled),
+        originPostcode: restaurant.deliveryOriginPostcode,
+        radiusMiles: restaurant.deliveryRadiusMiles,
+        baseFee: restaurant.deliveryBaseFee,
+        perMileFee: restaurant.deliveryPerMileFee,
+        minOrder: restaurant.deliveryMinOrder,
+      },
     },
   })
 }
@@ -56,6 +70,12 @@ export async function PATCH(req: NextRequest) {
   if (parsed.data.contactEmail !== undefined) updates.contactEmail = parsed.data.contactEmail?.trim() || null
   if (parsed.data.contactPhone !== undefined) updates.contactPhone = parsed.data.contactPhone?.trim() || null
   if (parsed.data.openingHours !== undefined) updates.openingHours = JSON.stringify(parsed.data.openingHours)
+  if (parsed.data.deliveryEnabled !== undefined) updates.deliveryEnabled = parsed.data.deliveryEnabled ? 1 : 0
+  if (parsed.data.deliveryOriginPostcode !== undefined) updates.deliveryOriginPostcode = parsed.data.deliveryOriginPostcode?.trim().toUpperCase() || null
+  if (parsed.data.deliveryRadiusMiles !== undefined) updates.deliveryRadiusMiles = parsed.data.deliveryRadiusMiles
+  if (parsed.data.deliveryBaseFee !== undefined) updates.deliveryBaseFee = parsed.data.deliveryBaseFee
+  if (parsed.data.deliveryPerMileFee !== undefined) updates.deliveryPerMileFee = parsed.data.deliveryPerMileFee
+  if (parsed.data.deliveryMinOrder !== undefined) updates.deliveryMinOrder = parsed.data.deliveryMinOrder
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: 'No updates provided' }, { status: 400 })

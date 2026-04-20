@@ -16,6 +16,12 @@ export const restaurants = sqliteTable('restaurants', {
   stripeAccountId: text('stripe_account_id'),
   isActive: integer('is_active').notNull().default(1),
   menuTemplate: text('menu_template').notNull().default('custom'), // chinese|pizza|burger|indian|custom
+  deliveryEnabled: integer('delivery_enabled').notNull().default(1),
+  deliveryOriginPostcode: text('delivery_origin_postcode'),
+  deliveryRadiusMiles: real('delivery_radius_miles').notNull().default(3),
+  deliveryBaseFee: real('delivery_base_fee').notNull().default(2.5),
+  deliveryPerMileFee: real('delivery_per_mile_fee').notNull().default(0.8),
+  deliveryMinOrder: real('delivery_min_order').notNull().default(0),
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 })
 

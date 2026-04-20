@@ -1,22 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useBasket } from '@/hooks/useBasket'
 import { formatPrice } from '@/lib/utils'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { UKAddressFields } from '@/components/checkout/UKAddressFields'
+import { computeDeliveryFee, type DeliveryConfig } from '@/lib/delivery'
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, subtotal, clearBasket } = useBasket()
 
   const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [addressValid, setAddressValid] = useState(false)
+  const [distanceMiles, setDistanceMiles] = useState<number | null>(null)
+  const [outOfRange, setOutOfRange] = useState(false)
+  const [deliveryCfg, setDeliveryCfg] = useState<DeliveryConfig | null>(null)
   const [notes, setNotes] = useState('')
   const [fulfillment, setFulfillment] = useState<'collection' | 'delivery'>('collection')
   const [dealCode, setDealCode] = useState('')
@@ -26,13 +29,24 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const total = Math.max(0, subtotal - discount)
+  const deliveryFee = (fulfillment === 'delivery' && distanceMiles !== null && deliveryCfg)
+    ? computeDeliveryFee(distanceMiles, deliveryCfg)
+    : 0
+  const total = Math.max(0, subtotal - discount + deliveryFee)
 
   const apiPath = (base: string) => {
     if (typeof window === 'undefined') return base
     const t = new URLSearchParams(window.location.search).get('tenant')
     return t ? `${base}?tenant=${t}` : base
   }
+
+  useEffect(() => {
+    fetch(apiPath('/api/delivery-config'))
+      .then((r) => r.ok ? r.json() : null)
+      .then((json) => { if (json?.delivery) setDeliveryCfg(json.delivery) })
+      .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const applyDeal = async () => {
     if (!dealCode) return
@@ -56,8 +70,12 @@ export default function CheckoutPage() {
 
   const submit = async () => {
     if (!name) { setError('Please enter your name'); return }
+    if (!phone) { setError('Please enter your phone number'); return }
     if (items.length === 0) { setError('Your basket is empty'); return }
+    if (fulfillment === 'delivery' && !deliveryCfg?.enabled) { setError('Delivery is not available from this restaurant'); return }
+    if (fulfillment === 'delivery' && outOfRange) { setError('Address is outside the delivery radius'); return }
     if (fulfillment === 'delivery' && !addressValid) { setError('Please enter a valid delivery address with a UK postcode'); return }
+    if (fulfillment === 'delivery' && deliveryCfg && subtotal < deliveryCfg.minOrder) { setError(`Minimum delivery order is ${formatPrice(deliveryCfg.minOrder)}`); return }
 
     setLoading(true)
     setError('')
@@ -68,7 +86,6 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customerName: name,
-          customerEmail: email || undefined,
           customerPhone: phone || undefined,
           customerAddress: fulfillment === 'delivery' ? address : undefined,
           fulfillmentType: fulfillment,
@@ -142,12 +159,20 @@ export default function CheckoutPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#F0EBE3' }}>Your details</div>
             <Input label="Name *" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
-            <Input label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+44..." type="tel" />
-            <Input label="Email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" type="email" />
+            <Input label="Phone *" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+44..." type="tel" />
             {fulfillment === 'delivery' && (
               <div>
                 <div style={{ fontSize: 12, color: '#78726C', fontWeight: 500, marginBottom: 8 }}>Delivery address</div>
-                <UKAddressFields value={address} onChange={(formatted, valid) => { setAddress(formatted); setAddressValid(valid) }} />
+                <UKAddressFields
+                  value={address}
+                  origin={deliveryCfg ? { postcode: deliveryCfg.originPostcode, radiusMiles: deliveryCfg.radiusMiles } : null}
+                  onChange={({ formatted, valid, distanceMiles, outOfRange }) => {
+                    setAddress(formatted)
+                    setAddressValid(valid)
+                    setDistanceMiles(distanceMiles)
+                    setOutOfRange(outOfRange)
+                  }}
+                />
               </div>
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -243,6 +268,11 @@ export default function CheckoutPage() {
               {discount > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#2ECC71' }}>
                   <span>Discount</span><span>−{formatPrice(discount)}</span>
+                </div>
+              )}
+              {fulfillment === 'delivery' && distanceMiles !== null && !outOfRange && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#78726C' }}>
+                  <span>Delivery</span><span>{formatPrice(deliveryFee)}</span>
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800, color: '#F0EBE3', paddingTop: 8, borderTop: '1px solid #1a1a1a' }}>

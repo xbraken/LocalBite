@@ -9,7 +9,6 @@ import { z } from 'zod'
 
 const createOrderSchema = z.object({
   customerName: z.string().min(1),
-  customerEmail: z.string().email().optional(),
   customerPhone: z.string().optional(),
   customerAddress: z.string().optional(),
   fulfillmentType: z.enum(['collection', 'delivery']).default('collection'),
@@ -55,7 +54,7 @@ export async function POST(req: NextRequest) {
     .values({
       restaurantId: tenant.id,
       customerName: data.customerName,
-      customerEmail: data.customerEmail ?? null,
+      customerEmail: null,
       customerPhone: data.customerPhone ?? null,
       customerAddress: data.customerAddress ?? null,
       fulfillmentType: data.fulfillmentType,

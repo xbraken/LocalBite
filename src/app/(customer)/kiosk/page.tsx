@@ -6,6 +6,7 @@ import { getCategoryStyle } from '@/lib/categoryStyles'
 import { formatPrice, formatOrderId } from '@/lib/utils'
 import { ItemCustomiserModal } from '@/components/ordering/ItemCustomiserModal'
 import { UKAddressFields } from '@/components/checkout/UKAddressFields'
+import { computeDeliveryFee, type DeliveryConfig } from '@/lib/delivery'
 import type { MenuItem } from '@/types/menu'
 import type { BasketItem } from '@/types/order'
 
@@ -22,6 +23,9 @@ export default function KioskPage() {
   const [customerPhone, setCustomerPhone] = useState('')
   const [customerAddress, setCustomerAddress] = useState('')
   const [addressValid, setAddressValid] = useState(false)
+  const [distanceMiles, setDistanceMiles] = useState<number | null>(null)
+  const [outOfRange, setOutOfRange] = useState(false)
+  const [deliveryCfg, setDeliveryCfg] = useState<DeliveryConfig | null>(null)
   const [ticket, setTicket] = useState<BasketItem[]>([])
   const [notes, setNotes] = useState<Record<string, string>>({})
   const [focusedId, setFocusedId] = useState<string | null>(null)
@@ -36,6 +40,15 @@ export default function KioskPage() {
     if (categories.length > 0 && !categories.includes(activeCategory)) setActiveCategory('All')
   }, [categories.join(',')])
 
+  useEffect(() => {
+    const tenantQ = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tenant') : null
+    const url = tenantQ ? `/api/delivery-config?tenant=${tenantQ}` : '/api/delivery-config'
+    fetch(url)
+      .then((r) => r.ok ? r.json() : null)
+      .then((json) => { if (json?.delivery) setDeliveryCfg(json.delivery) })
+      .catch(() => {})
+  }, [])
+
   const allItems: MenuItem[] = useMemo(() => {
     return categories.flatMap((cat) => menu[cat] ?? [])
   }, [menu, categories.join(',')])
@@ -49,7 +62,10 @@ export default function KioskPage() {
 
   const ticketSubtotal = ticket.reduce((s, i) => s + i.totalPrice * i.qty, 0)
   const ticketVat = ticketSubtotal * VAT_RATE
-  const ticketTotal = ticketSubtotal
+  const deliveryFee = (fulfillment === 'delivery' && distanceMiles !== null && deliveryCfg && !outOfRange)
+    ? computeDeliveryFee(distanceMiles, deliveryCfg)
+    : 0
+  const ticketTotal = ticketSubtotal + deliveryFee
   const ticketCount = ticket.reduce((s, i) => s + i.qty, 0)
 
   const addToTicket = (item: BasketItem) => {
@@ -287,7 +303,16 @@ export default function KioskPage() {
             <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Customer name" style={{ background: '#1a1a1a', border: '1px solid #252525', borderRadius: 7, padding: '9px 11px', color: '#F0EBE3', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
             <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="Phone" style={{ background: '#1a1a1a', border: '1px solid #252525', borderRadius: 7, padding: '9px 11px', color: '#F0EBE3', fontSize: 12, outline: 'none', fontFamily: 'inherit' }} />
             {fulfillment === 'delivery' && (
-              <UKAddressFields value={customerAddress} onChange={(formatted, valid) => { setCustomerAddress(formatted); setAddressValid(valid) }} />
+              <UKAddressFields
+                value={customerAddress}
+                origin={deliveryCfg ? { postcode: deliveryCfg.originPostcode, radiusMiles: deliveryCfg.radiusMiles } : null}
+                onChange={({ formatted, valid, distanceMiles, outOfRange }) => {
+                  setCustomerAddress(formatted)
+                  setAddressValid(valid)
+                  setDistanceMiles(distanceMiles)
+                  setOutOfRange(outOfRange)
+                }}
+              />
             )}
           </div>
         )}
@@ -304,6 +329,12 @@ export default function KioskPage() {
                 <span style={{ fontSize: 12, color: '#4a4440' }}>VAT (20%)</span>
                 <span style={{ fontSize: 12, color: '#78726C' }}>incl.</span>
               </div>
+              {fulfillment === 'delivery' && deliveryFee > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 12, color: '#4a4440' }}>Delivery{distanceMiles !== null ? ` (${distanceMiles.toFixed(1)} mi)` : ''}</span>
+                  <span style={{ fontSize: 12, color: '#78726C' }}>{formatPrice(deliveryFee)}</span>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 }}>
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#F0EBE3' }}>Total</span>
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#D4A017' }}>{formatPrice(ticketTotal)}</span>

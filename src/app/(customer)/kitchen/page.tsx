@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { KanbanBoard } from '@/components/kitchen/KanbanBoard'
 import type { Order } from '@/types/order'
 
@@ -104,7 +105,8 @@ export default function KitchenPage() {
     return () => clearInterval(clockId)
   }, [])
 
-  const tenantParam = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tenant') : null
+  const searchParams = useSearchParams()
+  const tenantParam = searchParams?.get('tenant') ?? null
   const apiPath = (base: string) => tenantParam ? `${base}${base.includes('?') ? '&' : '?'}tenant=${tenantParam}` : base
 
   useEffect(() => {
@@ -159,7 +161,7 @@ export default function KitchenPage() {
       clearInterval(poll)
       setConnected(false)
     }
-  }, [])
+  }, [tenantParam])
 
   const handleUpdateStatus = async (orderId: number, status: string) => {
     // Optimistic update
