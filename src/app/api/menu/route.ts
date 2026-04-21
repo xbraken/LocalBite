@@ -37,11 +37,24 @@ export async function GET() {
           .orderBy(asc(modifierOptions.sortOrder))
       : []
 
+  const groupsByMenuItemId = new Map<number, typeof allGroups>()
+  for (const group of allGroups) {
+    const existing = groupsByMenuItemId.get(group.menuItemId)
+    if (existing) existing.push(group)
+    else groupsByMenuItemId.set(group.menuItemId, [group])
+  }
+
+  const optionsByGroupId = new Map<number, typeof allOptions>()
+  for (const option of allOptions) {
+    const existing = optionsByGroupId.get(option.modifierGroupId)
+    if (existing) existing.push(option)
+    else optionsByGroupId.set(option.modifierGroupId, [option])
+  }
+
   const menu: MenuByCategory = {}
 
   for (const item of items) {
-    const groups = allGroups
-      .filter((g) => g.menuItemId === item.id)
+    const groups = (groupsByMenuItemId.get(item.id) ?? [])
       .map((g) => ({
         id: g.id,
         menuItemId: g.menuItemId,
@@ -50,8 +63,8 @@ export async function GET() {
         minChoices: g.minChoices,
         maxChoices: g.maxChoices,
         sortOrder: g.sortOrder,
-        options: allOptions
-          .filter((o) => o.modifierGroupId === g.id && Boolean(o.isAvailable))
+        options: (optionsByGroupId.get(g.id) ?? [])
+          .filter((o) => Boolean(o.isAvailable))
           .map((o) => ({
             id: o.id,
             name: o.name,
