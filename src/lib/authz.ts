@@ -5,7 +5,6 @@ import type { Restaurant } from '@/types/tenant'
 
 type TenantAccessData = {
   tenant: Restaurant
-  session: NonNullable<Awaited<ReturnType<typeof auth>>>
 }
 
 type TenantAccessResult =
@@ -34,5 +33,5 @@ export async function requireTenantAccess(allowedRoles: string[]): Promise<Tenan
     return { ok: false, response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) }
   }
 
-  return { ok: true, data: { tenant, session } }
+  return { ok: true, data: { tenant } }
 }
