@@ -95,18 +95,22 @@ export async function GET() {
   })
 }
 
-async function ensureCategory(restaurantId: number, name: string) {
-  const existing = await db
+async function ensureCategory(
+  tx: Pick<typeof db, 'select' | 'insert'>,
+  restaurantId: number,
+  name: string
+) {
+  const existing = await tx
     .select()
     .from(categories)
     .where(and(eq(categories.restaurantId, restaurantId), eq(categories.name, name)))
   if (existing.length > 0) return
-  const all = await db
+  const all = await tx
     .select({ sortOrder: categories.sortOrder })
     .from(categories)
     .where(eq(categories.restaurantId, restaurantId))
   const nextSort = all.reduce((m, r) => Math.max(m, r.sortOrder), -1) + 1
-  await db.insert(categories).values({ restaurantId, name, sortOrder: nextSort })
+  await tx.insert(categories).values({ restaurantId, name, sortOrder: nextSort })
 }
 
 const optionSchema = z.object({
@@ -142,47 +146,61 @@ export async function POST(req: NextRequest) {
   }
   const { name, description, basePrice, category, imageUrl, groups } = parsed.data
 
-  await ensureCategory(tenant.id, category)
+  try {
+    const insertedId = await db.transaction(async (tx) => {
+      await ensureCategory(tx, tenant.id, category)
 
-  const [inserted] = await db
-    .insert(menuItems)
-    .values({
-      restaurantId: tenant.id,
-      name,
-      description: description || null,
-      basePrice,
-      category,
-      imageUrl: imageUrl || null,
-      isAvailable: 1,
-      sortOrder: 0,
+      const [inserted] = await tx
+        .insert(menuItems)
+        .values({
+          restaurantId: tenant.id,
+          name,
+          description: description || null,
+          basePrice,
+          category,
+          imageUrl: imageUrl || null,
+          isAvailable: 1,
+          sortOrder: 0,
+        })
+        .returning({ id: menuItems.id })
+
+      for (let gi = 0; gi < groups.length; gi++) {
+        const g = groups[gi]
+        const [insertedGroup] = await tx
+          .insert(modifierGroups)
+          .values({
+            menuItemId: inserted.id,
+            name: g.name,
+            type: g.type,
+            minChoices: g.minChoices,
+            maxChoices: g.maxChoices,
+            sortOrder: gi,
+          })
+          .returning({ id: modifierGroups.id })
+
+        for (let oi = 0; oi < g.options.length; oi++) {
+          const o = g.options[oi]
+          await tx.insert(modifierOptions).values({
+            modifierGroupId: insertedGroup.id,
+            name: o.name,
+            priceDelta: o.priceDelta,
+            isAvailable: 1,
+            sortOrder: oi,
+          })
+        }
+      }
+
+      return inserted.id
     })
-    .returning({ id: menuItems.id })
 
-  for (let gi = 0; gi < groups.length; gi++) {
-    const g = groups[gi]
-    const [insertedGroup] = await db
-      .insert(modifierGroups)
-      .values({
-        menuItemId: inserted.id,
-        name: g.name,
-        type: g.type,
-        minChoices: g.minChoices,
-        maxChoices: g.maxChoices,
-        sortOrder: gi,
-      })
-      .returning({ id: modifierGroups.id })
-
-    for (let oi = 0; oi < g.options.length; oi++) {
-      const o = g.options[oi]
-      await db.insert(modifierOptions).values({
-        modifierGroupId: insertedGroup.id,
-        name: o.name,
-        priceDelta: o.priceDelta,
-        isAvailable: 1,
-        sortOrder: oi,
-      })
-    }
+    return NextResponse.json({ ok: true, itemId: insertedId })
+  } catch (error) {
+    console.error('menu_item_create_failed', {
+      operation: 'menu_item_create',
+      restaurantId: tenant.id,
+      itemId: null,
+      error,
+    })
+    return NextResponse.json({ error: 'Failed to save menu item' }, { status: 500 })
   }
-
-  return NextResponse.json({ ok: true, itemId: inserted.id })
 }
