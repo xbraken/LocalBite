@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { deals } from '@/db/schema'
 import { and, eq } from 'drizzle-orm'
-import { getTenantFromRequest } from '@/lib/tenant'
+import { requireTenantAccess } from '@/lib/authz'
 import { z } from 'zod'
 
 const patchSchema = z.object({
@@ -13,8 +13,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { dealId: string } }
 ) {
-  const tenant = await getTenantFromRequest()
-  if (!tenant) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const access = await requireTenantAccess(['restaurant_admin', 'super_admin'])
+  if (!access.ok) return access.response
+  const { tenant } = access.data
 
   const dealId = parseInt(params.dealId)
   if (Number.isNaN(dealId)) return NextResponse.json({ error: 'Invalid deal id' }, { status: 400 })

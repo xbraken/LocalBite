@@ -3,6 +3,7 @@ import { db } from '@/db'
 import { menuItems, modifierGroups, modifierOptions, categories } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { getTenantFromRequest } from '@/lib/tenant'
+import { requireTenantAccess } from '@/lib/authz'
 import { z } from 'zod'
 
 const optionSchema = z.object({
@@ -30,8 +31,9 @@ const patchSchema = z.object({
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: { itemId: string } }) {
-  const tenant = await getTenantFromRequest()
-  if (!tenant) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const access = await requireTenantAccess(['restaurant_admin', 'super_admin'])
+  if (!access.ok) return access.response
+  const { tenant } = access.data
 
   const itemId = parseInt(params.itemId)
   const body = await req.json()
@@ -105,8 +107,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { itemId: st
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { itemId: string } }) {
-  const tenant = await getTenantFromRequest()
-  if (!tenant) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const access = await requireTenantAccess(['restaurant_admin', 'super_admin'])
+  if (!access.ok) return access.response
+  const { tenant } = access.data
 
   const itemId = parseInt(params.itemId)
 

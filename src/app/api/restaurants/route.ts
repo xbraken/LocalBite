@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
-import { restaurants, users } from '@/db/schema'
+import { restaurants, users, userInvites } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { auth } from '@/lib/auth'
 import { stripe } from '@/lib/stripe'
+import { generateBootstrapPassword, generateInviteToken } from '@/lib/invite'
 import { seedMenuTemplate } from '@/scripts/seed'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
@@ -75,19 +76,32 @@ export async function POST(req: NextRequest) {
     })
     .returning()
 
-  // Create owner user
-  const passwordHash = await bcrypt.hash('changeme123', 10)
-  await db.insert(users).values({
+  // Create owner user with random bootstrap password (unknown to operators)
+  const bootstrapPassword = generateBootstrapPassword()
+  const passwordHash = await bcrypt.hash(bootstrapPassword, 10)
+  const [ownerUser] = await db.insert(users).values({
     restaurantId: restaurant.id,
     email: data.ownerEmail,
     passwordHash,
     role: 'restaurant_admin',
+  }).returning({ id: users.id, email: users.email })
+
+  // Create one-time onboarding invite
+  const { token, tokenHash, expiresAt } = generateInviteToken()
+  await db.insert(userInvites).values({
+    userId: ownerUser.id,
+    email: ownerUser.email,
+    tokenHash,
+    expiresAt,
   })
 
   // Seed menu template
   await seedMenuTemplate(restaurant.id, data.menuTemplate)
 
-  return NextResponse.json({ restaurant })
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? `http://${data.subdomain}.localhost:3000`
+  const inviteUrl = `${origin.replace(/\/$/, '')}/setup-account?token=${token}`
+
+  return NextResponse.json({ restaurant, inviteUrl, inviteExpiresAt: expiresAt })
 }
 
 export async function PATCH(req: NextRequest) {

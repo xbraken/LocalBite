@@ -90,6 +90,9 @@ export default function CheckoutPage() {
           customerAddress: fulfillment === 'delivery' ? address : undefined,
           fulfillmentType: fulfillment,
           items,
+          dealCode: dealCode || undefined,
+          deliveryFee: fulfillment === 'delivery' ? deliveryFee : 0,
+          // Deprecated fields kept for backwards compatibility while server canonicalizes pricing
           subtotal,
           discountAmount: discount,
           total,

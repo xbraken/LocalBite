@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
-import { categories, menuItems } from '@/db/schema'
+import { categories } from '@/db/schema'
 import { eq, and, asc } from 'drizzle-orm'
 import { getTenantFromRequest } from '@/lib/tenant'
+import { requireTenantAccess } from '@/lib/authz'
 import { z } from 'zod'
 
 export async function GET() {
@@ -24,8 +25,9 @@ const postSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
-  const tenant = await getTenantFromRequest()
-  if (!tenant) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const access = await requireTenantAccess(['restaurant_admin', 'super_admin'])
+  if (!access.ok) return access.response
+  const { tenant } = access.data
 
   const parsed = postSchema.safeParse(await req.json())
   if (!parsed.success) return NextResponse.json({ error: 'Invalid body' }, { status: 400 })

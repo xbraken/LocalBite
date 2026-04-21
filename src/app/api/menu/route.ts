@@ -3,6 +3,7 @@ import { db } from '@/db'
 import { menuItems, modifierGroups, modifierOptions, categories } from '@/db/schema'
 import { eq, asc, inArray, and } from 'drizzle-orm'
 import { getTenantFromRequest } from '@/lib/tenant'
+import { requireTenantAccess } from '@/lib/authz'
 import { z } from 'zod'
 import type { MenuByCategory } from '@/types/menu'
 
@@ -132,8 +133,9 @@ const postSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
-  const tenant = await getTenantFromRequest()
-  if (!tenant) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const access = await requireTenantAccess(['restaurant_admin', 'super_admin'])
+  if (!access.ok) return access.response
+  const { tenant } = access.data
 
   const body = await req.json()
   const parsed = postSchema.safeParse(body)

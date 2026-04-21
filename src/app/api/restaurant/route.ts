@@ -3,6 +3,7 @@ import { db } from '@/db'
 import { restaurants } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { getTenantFromRequest } from '@/lib/tenant'
+import { requireTenantAccess } from '@/lib/authz'
 import { z } from 'zod'
 
 const openingHoursRowSchema = z.object({
@@ -58,8 +59,9 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const tenant = await getTenantFromRequest()
-  if (!tenant) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const access = await requireTenantAccess(['restaurant_admin', 'super_admin'])
+  if (!access.ok) return access.response
+  const { tenant } = access.data
 
   const body = await req.json()
   const parsed = patchSchema.safeParse(body)
