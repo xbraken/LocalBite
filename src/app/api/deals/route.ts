@@ -3,6 +3,7 @@ import { db } from '@/db'
 import { deals } from '@/db/schema'
 import { and, desc, eq } from 'drizzle-orm'
 import { getTenantFromRequest } from '@/lib/tenant'
+import { requireTenantAccess } from '@/lib/authz'
 import { validateDeal } from '@/lib/deals'
 import { z } from 'zod'
 
@@ -50,8 +51,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const tenant = await getTenantFromRequest()
-  if (!tenant) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const access = await requireTenantAccess(['restaurant_admin', 'super_admin'])
+  if (!access.ok) return access.response
+  const { tenant } = access.data
 
   const body = await req.json()
   const parsed = createSchema.safeParse(body)

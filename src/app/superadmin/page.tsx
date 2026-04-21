@@ -39,6 +39,7 @@ export default function SuperAdminPage() {
   const [newTemplate, setNewTemplate] = useState('custom')
   const [creating, setCreating] = useState(false)
   const [createError, setCreateError] = useState('')
+  const [inviteUrl, setInviteUrl] = useState('')
 
   const updateRestaurant = async (id: number, updates: Record<string, unknown>) => {
     await fetch('/api/restaurants', {
@@ -52,6 +53,7 @@ export default function SuperAdminPage() {
   const createRestaurant = async () => {
     setCreating(true)
     setCreateError('')
+    setInviteUrl('')
     try {
       const res = await fetch('/api/restaurants', {
         method: 'POST',
@@ -71,9 +73,9 @@ export default function SuperAdminPage() {
         setCreateError(err.error ?? 'Failed to create')
         return
       }
+      const payload = await res.json()
+      if (payload.inviteUrl) setInviteUrl(payload.inviteUrl)
       mutate()
-      setShowNewModal(false)
-      setNewName(''); setNewSubdomain(''); setNewEmail('')
     } catch {
       setCreateError('Network error')
     } finally {
@@ -233,12 +235,25 @@ export default function SuperAdminPage() {
               <Input label="Monthly Fee (£)" value={newFee} onChange={(e) => setNewFee(e.target.value)} type="number" placeholder="49" />
             </div>
             {createError && <div style={{ fontSize: 12, color: '#C0392B', padding: '8px 12px', background: 'rgba(192,57,43,0.1)', borderRadius: 6 }}>{createError}</div>}
+            {inviteUrl && (
+              <div style={{ fontSize: 12, color: '#D4A017', padding: '8px 12px', background: 'rgba(212,160,23,0.1)', borderRadius: 6, wordBreak: 'break-all' }}>
+                Invite link (share securely):<br />
+                <a href={inviteUrl} target="_blank" rel="noreferrer" style={{ color: '#F0EBE3' }}>{inviteUrl}</a>
+              </div>
+            )}
           </div>
           <div style={{ padding: '16px 24px', borderTop: '1px solid #1a1a1a', display: 'flex', gap: 10 }}>
             <Button onClick={createRestaurant} disabled={creating}>
               {creating ? 'Creating...' : 'Create Restaurant'}
             </Button>
-            <Button variant="ghost" onClick={() => setShowNewModal(false)}>Cancel</Button>
+            <Button variant="ghost" onClick={() => {
+              setShowNewModal(false)
+              setInviteUrl('')
+              setCreateError('')
+              setNewName('')
+              setNewSubdomain('')
+              setNewEmail('')
+            }}>Close</Button>
           </div>
         </Modal>
       )}

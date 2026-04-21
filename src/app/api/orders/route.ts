@@ -3,8 +3,8 @@ import { db } from '@/db'
 import { orders } from '@/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { getTenantFromRequest } from '@/lib/tenant'
-import { buildOrderSnapshot } from '@/lib/snapshot'
 import { broadcast } from '@/lib/socket'
+import { calculateOrderPricing } from '@/lib/pricing'
 import { z } from 'zod'
 
 const createOrderSchema = z.object({
@@ -28,9 +28,12 @@ const createOrderSchema = z.object({
     qty: z.number().min(1),
     customisationLabel: z.string(),
   })),
-  subtotal: z.number(),
-  discountAmount: z.number().default(0),
-  total: z.number(),
+  dealCode: z.string().optional(),
+  deliveryFee: z.number().min(0).max(100).default(0),
+  // Deprecated client-calculated fields (ignored server-side)
+  subtotal: z.number().optional(),
+  discountAmount: z.number().optional(),
+  total: z.number().optional(),
   paymentMethod: z.enum(['card', 'cash']).default('card'),
   stripePaymentIntentId: z.string().optional(),
   notes: z.string().optional(),
@@ -47,7 +50,18 @@ export async function POST(req: NextRequest) {
   }
 
   const data = parsed.data
-  const snapshot = buildOrderSnapshot(data.items)
+  let pricing
+  try {
+    pricing = await calculateOrderPricing({
+      restaurantId: tenant.id,
+      items: data.items,
+      fulfillmentType: data.fulfillmentType,
+      deliveryFee: data.fulfillmentType === 'delivery' ? data.deliveryFee : 0,
+      dealCode: data.dealCode,
+    })
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Invalid order pricing' }, { status: 400 })
+  }
 
   const result = await db
     .insert(orders)
@@ -58,10 +72,10 @@ export async function POST(req: NextRequest) {
       customerPhone: data.customerPhone ?? null,
       customerAddress: data.customerAddress ?? null,
       fulfillmentType: data.fulfillmentType,
-      itemsSnapshot: JSON.stringify(snapshot),
-      subtotal: data.subtotal,
-      discountAmount: data.discountAmount,
-      total: data.total,
+      itemsSnapshot: JSON.stringify(pricing.snapshot),
+      subtotal: pricing.subtotal,
+      discountAmount: pricing.discountAmount,
+      total: pricing.total,
       status: 'new',
       paymentMethod: data.paymentMethod,
       stripePaymentIntentId: data.stripePaymentIntentId ?? null,
@@ -76,8 +90,8 @@ export async function POST(req: NextRequest) {
     restaurantId: tenant.id,
     customerName: data.customerName,
     fulfillmentType: data.fulfillmentType,
-    itemsSnapshot: snapshot,
-    total: data.total,
+    itemsSnapshot: pricing.snapshot,
+    total: pricing.total,
     status: 'new',
     paymentMethod: data.paymentMethod,
     createdAt: new Date().toISOString(),
@@ -85,7 +99,15 @@ export async function POST(req: NextRequest) {
 
   broadcast(String(tenant.id), 'order:new', newOrder)
 
-  return NextResponse.json({ orderId })
+  return NextResponse.json({
+    orderId,
+    pricing: {
+      subtotal: pricing.subtotal,
+      discountAmount: pricing.discountAmount,
+      deliveryFee: pricing.deliveryFee,
+      total: pricing.total,
+    },
+  })
 }
 
 export async function GET(req: NextRequest) {

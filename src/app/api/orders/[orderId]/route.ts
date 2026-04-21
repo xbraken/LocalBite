@@ -3,6 +3,7 @@ import { db } from '@/db'
 import { orders } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { getTenantFromRequest } from '@/lib/tenant'
+import { requireTenantAccess } from '@/lib/authz'
 import { broadcast } from '@/lib/socket'
 import { z } from 'zod'
 
@@ -14,8 +15,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { orderId: string } }
 ) {
-  const tenant = await getTenantFromRequest()
-  if (!tenant) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  const access = await requireTenantAccess(['restaurant_admin', 'kitchen_staff', 'super_admin'])
+  if (!access.ok) return access.response
+  const { tenant } = access.data
 
   const orderId = parseInt(params.orderId)
   const body = await req.json()

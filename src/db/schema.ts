@@ -92,6 +92,16 @@ export const users = sqliteTable('users', {
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
 })
 
+export const userInvites = sqliteTable('user_invites', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  tokenHash: text('token_hash').notNull().unique(),
+  expiresAt: text('expires_at').notNull(),
+  usedAt: text('used_at'),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+})
+
 export const deals = sqliteTable('deals', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   restaurantId: integer('restaurant_id').notNull().references(() => restaurants.id, { onDelete: 'cascade' }),
@@ -127,5 +137,8 @@ export const relations = {
   },
   users: {
     restaurant: () => restaurants,
+  },
+  userInvites: {
+    user: () => users,
   },
 }
